@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>License Usage App</title>
+   <link rel="stylesheet" href="style.css">
+
+  </head>
+
+  <body>
+		<p id="outputTable">Fetching data, please wait....</p>
+
+<script>
+var baseUrl = 'nhhotelsdev-de.egain.cloud' //'bo-mail.nh-hotels.com'
+var APIurl = 'https://'+ baseUrl +'/system/ws/v11/general/about/license/all'
+
+let initObject = { // INIT the fetch headers and properties
+    method: 'GET',
+    mode: 'cors', // MUST BE cors
+    headers: new Headers({'accept': 'application/json'})
+    };
+
+// UNCOMMENT FOR DEBUGGING
+// console.clear()
+
+fetch(APIurl, initObject)
+   .then(function (response) {
+        return response.json();
+    })
+    .then(function (data) {
+
+
+		var myTable = "<TABLE><TR><TH>Product</TH><TH>Policy</TH><TH>Licenses installed</TH><TH>Licenses Available</TH><TH>Licenses Used</TH></TR>"
+
+	for (i = 0; i < data.license.length; i++) {
+		 myTable = myTable +
+		 '<tr><td style="firstRow">'+ data.license[i].product +
+
+		 '</td><td>' + data.license[i].policy +
+		 '</td><td>' + data.license[i].unitsInstalled +
+		 '</td><td>' + data.license[i].usage.available +
+		 '</td><td>' + data.license[i].usage.used +
+		 '</td></tr>';
+	}
+        document.getElementById("outputTable").innerHTML =  myTable + ' </TABLE> <P> Data fetched on <STRONG>' + data.callInfo.timestamp +'</STRONG></p>'
+
+})
+    .catch(function (err) {
+        console.log("Something went wrong!", err);
+    });
+
+
+
+
+</script>
+  </body>
+</html>
