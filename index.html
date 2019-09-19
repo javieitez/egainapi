@@ -1,0 +1,199 @@
+  <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Change Case App</title>
+	 <link rel="stylesheet" href="style.css">
+
+	</head>
+
+	<body>
+		<h3>Source Case </h3>
+<p id="firstTable">Fetching data, please wait....</p>
+
+Destination Case ID: <input type="text" size="7" name="destCaseID" id="destCaseID">
+<button onclick="processDestCaseID()">Submit</button>
+
+<h3 id="destCaseIDheader"> </h3>
+<p id="secondTable"> </p>
+
+
+	<script>
+
+/*******  *******  *******  *******  *******  *******  *******
+             VARS, INITS and miscellaneous stuff
+*******  *******  *******  *******  *******  *******  *******/
+
+var srcCaseID = getQuery("srcCaseID");   // Example '2699230'
+
+// credentials are hardcoded here for testing, will be replaced by session ID
+var myCredentials = '{ "userName": "nhtestcti1" , "password": "nhtest1234"}'
+
+//compose the miscellaneous URLs we'll need later
+var domainUrl = 'nhhotelsdev-de.egain.cloud' //'bo-mail.nh-hotels.com'
+var protocolUrl = 'https://'
+var baseUrl = protocolUrl + domainUrl
+var loginUrl = baseUrl +'/system/ws/v12/authentication/user/login'
+var logoutUrl = baseUrl + '/system/ws/v12/authentication/user/logout'
+var getCaseUrl = baseUrl + "/system/ws/v12/interaction/case/" + srcCaseID
+
+//empty objects required later in the global scope
+var CurrentTable, myToken, destCaseIDMsg = ''
+var initObject, srcCaseProperties, destCaseProperties = {};
+var destCaseIDisValid = false
+
+/* The Headers object is refreshed for every new request,
+so declare a reusable function for it*/
+function freshHeaders() {
+	initObject = { // then we fill it with the fetch headers and properties
+	method: 'POST',
+	mode: 'cors', // MUST BE cors
+	body : myCredentials,
+	headers: new Headers({'accept': 'application/json',
+				'Accept-Language': 'en-US',
+				 'content-type': 'application/json',
+				})
+		};
+}
+//then, we invoke it
+freshHeaders()
+
+//extract the params from URL
+		function getQuery(name){
+		   if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
+		        return decodeURIComponent(name[1]);
+		}
+
+// FOR DEBUGGING
+console.clear();
+
+/*******  *******  *******  *******  *******  *******  *******
+ LOGIN AND LOGOUT functions
+*******  *******  *******  *******  *******  *******  *******/
+/* LOGIN and GET SESSION ID */
+
+/* Declare as a function in order to reuse later*/
+function initLoginParams(resolve, reject) {
+	fetch(loginUrl, initObject)
+		.then(function (response) {
+					if (response.ok) {
+						resolve('logged in');
+						window.myToken = response.headers.get('X-egain-session');
+						initObject.method = 'GET';
+						initObject.body = null
+						initObject.headers.set('X-egain-session', window.myToken);
+					} else {
+						reject('not logged in');}
+															})}
+
+/* Reusable function for fetching the customer email */
+
+function fetchCustomer(customerID) {
+	initObject.method = 'POST'
+	let FetchEmailLogin = new Promise(function(resolve, reject) {
+				initLoginParams(resolve, reject)
+	})
+			var customerURL = window.baseUrl + '/ws/v12/interaction/customer/' + customerID
+			initObject.method = 'GET'
+/*			fetch(customerURL, initObject)
+				.then(function(response){
+						console.log(customer.contactpoints)
+				.then(function(response) {
+						initObject.method = 'DELETE'
+						fetch(logoutUrl, initObject)
+				})
+			}) */
+		}
+
+/* Reusable function for fetching the case data and put it on a table*/
+
+function buildTableAndLogout() {
+  fetch(getCaseUrl, initObject)
+      .then(function(response){
+            initObject.method = 'DELETE'
+            fetch(logoutUrl, initObject)
+            return response.json()})
+                  .then(function(data){
+                        // prevent unassigned case from crashing the function
+													var caseOwner = ''
+													if (typeof data.case[0].owner.user === 'undefined') {
+														caseOwner = 'unassigned'} else {
+														caseOwner = data.case[0].owner.user.name
+													}
+													//fetch the customer API and get the email address
+
+													fetchCustomer(data.case[0].customer.id)
+
+
+													// convert source Case data to HTML TABLE
+                          myTable = '<TABLE><TR><TH>Case ID</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
+                          myTable +=
+                          '<TR><TD>' + data.case[0].id +
+                          '</TD><TD>' + data.case[0].customer.customerName + '<br>(ID: ' + data.case[0].customer.id +')'+
+                          '</TD><TD>' + caseOwner +
+                          '</TD><TD>' + data.case[0].subject +
+                          '</TD><TD>' + data.case[0].dueDate + '</TD></TR></TABLE>';
+													console.log('window.CurrentTable value is ' + window.CurrentTable);
+													//console.log('myTable content: ' + myTable)
+                    			document.getElementById(window.CurrentTable).innerHTML =  myTable
+                  })
+        .catch(function(err){
+            console.log("Something went wrong!", err);
+            fetch(logoutUrl, initObject)
+          })
+}
+
+/* login for the first time, using the init parameters*/
+/*      MUST use a new promise for each login      */
+let FirstUserLogin = new Promise(function(resolve, reject) {
+			initLoginParams(resolve, reject)
+});
+
+FirstUserLogin
+	.then(function(fromResolve){
+			window.CurrentTable = 'firstTable'
+			console.log('the user is ' + fromResolve)
+			console.log('session ID: ' + window.myToken);
+			buildTableAndLogout()
+							})
+			// catch means "if error"
+			.catch(function(fromReject){
+			console.log('the user is ' + fromReject)
+});
+
+
+/*******  *******  *******  *******  *******  *******  *******
+		function for the Submit button
+*******  *******  *******  *******  *******  *******  *******/
+function processDestCaseID() {
+	var destCaseID = document.getElementById("destCaseID").value
+	getCaseUrl = baseUrl + "/system/ws/v12/interaction/case/" + destCaseID
+	if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
+	destCaseIDMsg = "Destination Case ID must be a 7 digit number";
+	submitOK = "false"
+	destCaseIDisValid = false;} else {
+		document.getElementById("destCaseIDheader").innerHTML = 'Destination Case'
+		destCaseIDMsg = 'Destination Case will be ' + destCaseID + '<BR> Fetching case details, please wait...'
+		destCaseIDisValid = true
+	}
+		document.getElementById("secondTable").innerHTML = destCaseIDMsg;
+		/* login for the second time,
+		first reboot the headers object*/
+		freshHeaders()
+		/* then create a new promise for the login */
+		let SecondUserLogin = new Promise(function(resolve, reject) {
+				initLoginParams(resolve, reject)
+			});
+
+			SecondUserLogin
+			.then(function(fromResolve){
+					window.CurrentTable = 'secondTable'
+					console.log('session ID: ' + window.myToken);
+					//build the table again, this time place it on the second DIV
+						buildTableAndLogout()
+})}
+
+</script>
+</body>
+</html>
