@@ -198,18 +198,32 @@ function mergeCases() {
 				initLoginParams(resolve, reject)
 			});
 
+function changeCustomer() {
+	var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
+	initObject.method = 'PUT';
+	initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.bufferCase.lastModified.date}
+	fetch(changeCustomerURL, initObject)
+		.then(() => {
+			console.log('Customer changed to ' + window.bufferCase.customer.id );})
+}
+
+
 		ThirdUserLogin
 		.then(function(fromResolve){
 			// if customer differs, change it
-			if (window.srcCaseProperties.id != window.bufferCase.id) {
-			var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
-			initObject.method = 'PUT';
-			initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.bufferCase.lastModified.date}
-			fetch(changeCustomerURL, initObject)
-				.then(() => {
-					console.log('Customer changed to ' + window.bufferCase.customer.id );}) }
+			if (window.srcCaseProperties.customer.id != window.bufferCase.customer.id) {
+				changeCustomer()
+				//console.log('Customer changed to ' + window.bufferCase.customer.id )
 
-					else {console.log('both cases have the same customer');}
+				}	else if (window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
+						console.log('both cases are the same: ' + window.bufferCase.id)
+					}	else {
+						// do the stuff
+
+
+
+					;
+					}
 
 			// proceed to change case
 
