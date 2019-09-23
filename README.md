@@ -1,1 +1,1 @@
-# egainapi
+# eGain API test app
