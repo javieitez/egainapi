@@ -110,9 +110,9 @@ fetch(getCaseUrl, initObject)
 												}
 
 												// convert source Case data to HTML TABLE
-												myTable = '<TABLE><TR><TH>Case ID</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
+												myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
 												myTable +=
-												'<TR><TD>' + window.bufferCase.id +
+												'<TR><TD>' + window.bufferCase.id + '<BR> (' + window.bufferCase.status.value + ')'+
 												'</TD><TD>' + window.bufferCase.customer.customerName + '<br>(ID: ' + window.bufferCase.customer.id +')'+
 												'</TD><TD>' + caseOwner +
 												'</TD><TD>' + window.bufferCase.subject +
@@ -201,10 +201,11 @@ function mergeCases() {
 function changeCustomer() {
 	var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 	initObject.method = 'PUT';
-	initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.bufferCase.lastModified.date}
+	initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.srcCaseProperties.lastModified.date}
 	fetch(changeCustomerURL, initObject)
 		.then(() => {
-			console.log('Customer changed to ' + window.bufferCase.customer.id );})
+			console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );})
+			console.log(initObject.body)
 }
 
 
