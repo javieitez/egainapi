@@ -92,6 +92,19 @@ fetch(loginUrl, initObject)
 				} else {
 					reject('not logged in');}
 														})}
+/* Reusable function for changing the customer of source case*/
+
+function changeCustomer() {
+			var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
+			initObject.method = 'PUT';
+			initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.srcCaseProperties.lastModified.date}
+			fetch(changeCustomerURL, initObject)
+					.then(() => {
+						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );})
+						console.log(initObject.body)
+						}
+
+
 
 /* Reusable function for fetching the case data and put it on a table*/
 
@@ -197,16 +210,6 @@ function mergeCases() {
 		let ThirdUserLogin = new Promise(function(resolve, reject) {
 				initLoginParams(resolve, reject)
 			});
-
-function changeCustomer() {
-	var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
-	initObject.method = 'PUT';
-	initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.srcCaseProperties.lastModified.date}
-	fetch(changeCustomerURL, initObject)
-		.then(() => {
-			console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );})
-			console.log(initObject.body)
-}
 
 
 		ThirdUserLogin
