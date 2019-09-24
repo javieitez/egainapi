@@ -97,7 +97,7 @@ fetch(loginUrl, initObject)
 function changeCustomer() {
 			var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 			initObject.method = 'PUT';
-			initObject.body = {  "id": window.bufferCase.customer.id, "lastModified.date":  window.srcCaseProperties.lastModified.date}
+			initObject.body = { "customer": { "id": window.bufferCase.customer.id  }}
 			fetch(changeCustomerURL, initObject)
 					.then(() => {
 						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );})
@@ -217,10 +217,9 @@ function mergeCases() {
 			// if customer differs, change it
 			if (window.srcCaseProperties.customer.id != window.bufferCase.customer.id) {
 				changeCustomer()
-				//console.log('Customer changed to ' + window.bufferCase.customer.id )
 
 				}	else if (window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-						console.log('both cases are the same: ' + window.bufferCase.id)
+						console.log('both cases have the same customer: ' + window.bufferCase.customer.id)
 					}	else {
 						// do the stuff
 
