@@ -214,14 +214,14 @@ function mergeCases() {
 
 		ThirdUserLogin
 		.then(function(fromResolve){
-			// if customer differs, change it
-			if (window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
+			// same case?
+			if (window.srcCaseProperties.id == window.bufferCase.id) {
 				console.log('both cases are the same: ' + window.bufferCase.id)
-
+				// same customer?
 				}	else if (window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
 						console.log('both cases have the same customer: ' + window.bufferCase.customer.id)
 					}	else {
-						// do the stuff
+						//everything OK,  do the stuff
 						changeCustomer()
 
 
