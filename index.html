@@ -221,18 +221,15 @@ function mergeCases() {
 				}	else if (window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
 						console.log('both cases have the same customer: ' + window.bufferCase.customer.id)
 					}	else {
-						//everything OK,  do the stuff
+						//everything OK,  change the customer first
 						changeCustomer()
-
-
-					;
 					}
+			// and proceed to change the case ID
 
-			// proceed to change case
 
-			//and finally logout
 
 		})
+		//and finally logout
 		.then(() => logTheFuckOut())
 }
 
