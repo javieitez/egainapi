@@ -223,14 +223,16 @@ function mergeCases() {
 					}	else {
 						//everything OK,  change the customer first
 						changeCustomer()
-					}
-			// and proceed to change the case ID
+					}})
+		//proceed to merge srcCaseID into destCaseID
+		.then(() => moveActivities())
 
-
-
-		})
 		//and finally logout
 		.then(() => logTheFuckOut())
+}
+
+function moveActivities(){
+	console.log("Moving activities from source to destination case");
 }
 
 </script>
