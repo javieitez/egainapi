@@ -69,18 +69,15 @@ freshHeaders()
 					return decodeURIComponent(name[1]);
 	}
 
-// logout function will later be reused
+/*******  *******  *******  *******  *******  *******  *******
+		LOGIN AND LOGOUT functions
+*******  *******  *******  *******  *******  *******  *******/
 function logTheFuckOut() {
 	initObject.method = 'DELETE'
 	fetch(logoutUrl, initObject)
 }
 
-/*******  *******  *******  *******  *******  *******  *******
-LOGIN AND LOGOUT functions
-*******  *******  *******  *******  *******  *******  *******/
 /* LOGIN and GET SESSION ID */
-
-/* Declare as a function in order to reuse later*/
 function initLoginParams(resolve, reject) {
 fetch(loginUrl, initObject)
 	.then(function (response) {
@@ -93,8 +90,11 @@ fetch(loginUrl, initObject)
 				} else {
 					reject('not logged in');}
 														})}
-/* Reusable function for changing the customer of source case*/
 
+/*******  *******  *******  *******  *******  *******  *******
+						Other functions
+*******  *******  *******  *******  *******  *******  *******/
+/* Reusable function for changing the customer of source case*/
 function changeCustomer() {
 			var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 			initObject.method = 'PUT';
@@ -107,7 +107,6 @@ function changeCustomer() {
 						}
 
 /* Reusable function for getting activity IDs of source case*/
-
 function getSourceActivityIDs() {
 	var listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href
 	initObject.body = null
@@ -116,7 +115,8 @@ function getSourceActivityIDs() {
 		.then(function(response){
 			return response.json()})
 				.then(function(data){
-
+					//restart the array, then populate it with the activities
+					window.srcCaseActivityIDs =[]
 					for (i =0; i < Object.keys(data.activity).length; i++){
 						window.srcCaseActivityIDs.push(data.activity[0].id)
 					}
@@ -124,35 +124,30 @@ function getSourceActivityIDs() {
 				})
 }
 
-
-
 /* Reusable function for fetching the case data and put it on a table*/
-
 function buildTableAndLogout() {
 fetch(getCaseUrl, initObject)
 		.then(function(response){
-
 					return response.json()})
-								.then(function(data){
-											window.bufferCase = data.case[0]
-											// prevent unassigned case from crashing the function
-												var caseOwner = ''
-												if (typeof window.bufferCase.owner.user === 'undefined') {
-													caseOwner = 'unassigned'} else {
-													caseOwner = window.bufferCase.owner.user.name
-												}
-
-												// convert source Case data to HTML TABLE
-												myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
-												myTable +=
-												'<TR><TD>' + window.bufferCase.id + '<BR> (' + window.bufferCase.status.value + ')'+
-												'</TD><TD>' + window.bufferCase.customer.customerName + '<br>(ID: ' + window.bufferCase.customer.id +')'+
-												'</TD><TD>' + caseOwner +
-												'</TD><TD>' + window.bufferCase.subject +
-												'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
-												//put the table in place
-												document.getElementById(window.CurrentTable).innerHTML =  myTable
-								})
+							.then(function(data){
+									window.bufferCase = data.case[0]
+									// prevent unassigned case from crashing the function
+										var caseOwner = ''
+										if (typeof window.bufferCase.owner.user === 'undefined') {
+											caseOwner = 'unassigned'} else {
+											caseOwner = window.bufferCase.owner.user.name
+										}
+									// convert source Case data to HTML TABLE
+									myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
+									myTable +=
+								'<TR><TD>' + window.bufferCase.id + '<BR> (' + window.bufferCase.status.value + ')'+
+								'</TD><TD>' + window.bufferCase.customer.customerName + '<br>(ID: ' + window.bufferCase.customer.id +')'+
+								'</TD><TD>' + caseOwner +
+								'</TD><TD>' + window.bufferCase.subject +
+								'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
+								//put the table in place
+							document.getElementById(window.CurrentTable).innerHTML =  myTable
+						})
 			.then(() => {
 			logTheFuckOut()
 			})
@@ -162,29 +157,14 @@ fetch(getCaseUrl, initObject)
 				})
 }
 
-/* login for the first time, using the init parameters*/
-/*      MUST use a new promise for each login      */
-let FirstUserLogin = new Promise(function(resolve, reject) {
-		initLoginParams(resolve, reject)
-});
-
-FirstUserLogin
-		.then(function(fromResolve){
-				// enforce buildTableAndLogout function to work on the source case
-				window.CurrentTable = 'firstTable'
-				//
-				console.log('session ID: ' + window.myToken);
-				buildTableAndLogout()
-
-								})
-				// catch means "if error"
-		.catch(function(fromReject){
-		console.log('the user is ' + fromReject)
-});
-
+function moveActivities(){
+	console.log("Moving activities from source to destination case");
+}
 
 /*******  *******  *******  *******  *******  *******  *******
-	function for the Submit button
+			BUTTON (meta)FUNCTIONS
+*******  *******  *******  *******(meta)  *******  *******  *******
+	 		function for the Submit button
 *******  *******  *******  *******  *******  *******  *******/
 function processDestCaseID() {
 				//before going on,
@@ -251,9 +231,30 @@ function mergeCases() {
 		.then(() => logTheFuckOut())
 }
 
-function moveActivities(){
-	console.log("Moving activities from source to destination case");
-}
+/*******  *******  *******  *******  *******  *******  *******
+		end of declaring functions, let's start doing things
+*******  *******  *******  *******  *******  *******  *******/
+/* login for the first time, using the init parameters*/
+/*      MUST use a new promise for each login      */
+let FirstUserLogin = new Promise(function(resolve, reject) {
+		initLoginParams(resolve, reject)
+});
+
+FirstUserLogin
+		.then(function(fromResolve){
+				// enforce buildTableAndLogout function to work on the source case
+				window.CurrentTable = 'firstTable'
+				//
+				console.log('session ID: ' + window.myToken);
+				buildTableAndLogout()
+
+								})
+				// catch means "if error"
+		.catch(function(fromReject){
+		console.log('the user is ' + fromReject)
+});
+
+
 
 </script>
 </body>
