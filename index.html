@@ -122,6 +122,14 @@ function getSourceActivityIDs() {
 				})
 }
 
+// Move the activities to the destination case
+function moveActivities(){
+	for (n = 0; n < window.srcCaseActivityIDs.length; n++ ){
+	console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
+							window.srcCaseProperties.id +" to case " + window.bufferCase.id);
+	}
+}
+
 /* Reusable function for fetching the case data and put it on a table*/
 function buildTableAndLogout() {
 fetch(getCaseUrl, initObject)
@@ -155,9 +163,6 @@ fetch(getCaseUrl, initObject)
 				})
 }
 
-function moveActivities(){
-	console.log("Moving activities from source to destination case");
-}
 
 /*******  *******  *******  *******  *******  *******  *******
 			BUTTON (meta)FUNCTIONS
