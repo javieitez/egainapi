@@ -44,6 +44,7 @@ var getCaseUrl = baseUrl + apiCaseCall + srcCaseID
 //empty objects required later in the global scope
 var CurrentTable, myToken, destCaseIDMsg = ''
 var initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
+var srcCaseActivityIDs =[]
 var destCaseIDisValid = false
 
 /* The Headers object is refreshed for every new request,
@@ -100,9 +101,28 @@ function changeCustomer() {
 			initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
 			fetch(changeCustomerURL, initObject)
 					.then(() => {
-						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );})
+						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
 						console.log(initObject.body)
+							})
 						}
+
+/* Reusable function for getting activity IDs of source case*/
+
+function getSourceActivityIDs() {
+	var listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href
+	initObject.body = null
+	initObject.method = 'GET';
+	fetch(listActivitiesURL, initObject)
+		.then(function(response){
+			return response.json()})
+				.then(function(data){
+
+					for (i =0; i < Object.keys(data.activity).length; i++){
+						window.srcCaseActivityIDs.push(data.activity[0].id)
+					}
+					console.log(window.srcCaseActivityIDs);
+				})
+}
 
 
 
@@ -225,8 +245,8 @@ function mergeCases() {
 						changeCustomer()
 					}})
 		//proceed to merge srcCaseID into destCaseID
+		.then(() => getSourceActivityIDs())
 		.then(() => moveActivities())
-
 		//and finally logout
 		.then(() => logTheFuckOut())
 }
