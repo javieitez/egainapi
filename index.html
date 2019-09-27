@@ -112,13 +112,13 @@ function getSourceActivityIDs() {
 	fetch(listActivitiesURL, initObject)
 		.then(function(response){
 			return response.json()})
-				.then(function(data){
-					//restart the array, then populate it with the activities
-					window.srcCaseActivityIDs =[]
-					for (i =0; i < Object.keys(data.activity).length; i++){
-						window.srcCaseActivityIDs.push(data.activity[0].id)
+		.then(function(data){
+			//restart the array, then populate it with the activities
+			window.srcCaseActivityIDs =[]
+			for (i =0; i < Object.keys(data.activity).length; i++){
+				window.srcCaseActivityIDs.push(data.activity[0].id)
 					}
-					console.log(window.srcCaseActivityIDs);
+			console.log(window.srcCaseActivityIDs);
 				})
 }
 
