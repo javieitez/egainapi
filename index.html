@@ -60,8 +60,6 @@ headers: new Headers({'accept': 'application/json',
 			})
 	};
 }
-//then, we invoke it
-freshHeaders()
 
 //extract the params from URL
 	function getQuery(name){
@@ -234,6 +232,8 @@ function mergeCases() {
 /*******  *******  *******  *******  *******  *******  *******
 		end of declaring functions, let's start doing things
 *******  *******  *******  *******  *******  *******  *******/
+
+freshHeaders()
 /* login for the first time, using the init parameters*/
 /*      MUST use a new promise for each login      */
 let FirstUserLogin = new Promise(function(resolve, reject) {
