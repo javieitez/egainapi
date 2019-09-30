@@ -93,19 +93,23 @@ fetch(loginUrl, initObject)
 						Other functions
 *******  *******  *******  *******  *******  *******  *******/
 /* Reusable function for changing the customer of source case*/
-function changeCustomer() {
-			var changeCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
+var changeCustomer = function() {
+		var promise = new Promise(function(resolve, reject) {
+			var chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 			initObject.method = 'PUT';
 			initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
-			fetch(changeCustomerURL, initObject)
+			fetch(chgCustomerURL, initObject)
 					.then(() => {
 						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
 						console.log(initObject.body)
 							})
+						})
+						return promise;
 						}
 
 /* Reusable function for getting activity IDs of source case*/
-function getSourceActivityIDs() {
+var getSourceActivityIDs = function() {
+	var promise = new Promise(function(resolve, reject) {
 	var listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href
 	initObject.body = null
 	initObject.method = 'GET';
@@ -120,6 +124,8 @@ function getSourceActivityIDs() {
 					}
 			console.log(window.srcCaseActivityIDs);
 				})
+			})
+			return promise;;
 }
 
 // Move the activities to the destination case
@@ -128,6 +134,7 @@ function moveActivities(){
 	console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
 							window.srcCaseProperties.id +" to case " + window.bufferCase.id);
 	}
+	return 'ok';
 }
 
 /* Reusable function for fetching the case data and put it on a table*/
@@ -162,6 +169,9 @@ fetch(getCaseUrl, initObject)
 					fetch(logoutUrl, initObject)
 				})
 }
+/* Reusable function for writing the status DIV */
+function writeFinalStep(x) {
+	document.getElementById('finalstep').innerHTML = x}
 
 
 /*******  *******  *******  *******  *******  *******  *******
@@ -206,7 +216,7 @@ function processDestCaseID() {
 	function for the mergeCases button
 *******  *******  *******  *******  *******  *******  *******/
 function mergeCases() {
-		document.getElementById('finalstep').innerHTML = 'cases ' + window.srcCaseProperties.id + ' and ' + window.bufferCase.id + ' will be merged'
+		writeFinalStep('cases ' + window.srcCaseProperties.id + ' and ' + window.bufferCase.id + ' will be merged')
 
 		/* again, refresh headers and create a new promise for the login */
 		freshHeaders()
@@ -218,25 +228,19 @@ function mergeCases() {
 		ThirdUserLogin
 		.then(function(fromResolve){
 			// same case?
-			if (window.srcCaseProperties.id == window.bufferCase.id) {
-				console.log('both cases are the same: ' + window.bufferCase.id)
+			if (window.srcCaseProperties.id == window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
+				writeFinalStep('both cases are the same: ' + window.bufferCase.id);
 				// same customer?
-				}	else if (window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-						document.getElementById('finalstep').innerHTML = 'both cases have the same customer: ' + window.bufferCase.customer.id;
+			}	else if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
+						writeFinalStep('both cases have the same customer: ' + window.bufferCase.customer.id);
 					}	else {
-						//everything OK,  change the customer first
+						//everything OK,  go
 						changeCustomer()
-							ThirdUserLogin.then(() => getSourceActivityIDs())
-							ThirdUserLogin.then(() => moveActivities())
-							ThirdUserLogin.then(() => logTheFuckOut())
+							.then(() => getSourceActivityIDs()
+							.then(() => moveActivities()
+							.then(() => logTheFuckOut())))
+					}})}
 
-					}})
-		//proceed to merge srcCaseID into destCaseID
-		//.then(() => getSourceActivityIDs())
-
-		//and finally logout
-
-}
 
 /*******  *******  *******  *******  *******  *******  *******
 		end of declaring functions, let's start doing things
