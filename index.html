@@ -42,7 +42,7 @@ var getCaseUrl = baseUrl + apiCaseCall + srcCaseID
 
 
 //empty objects required later in the global scope
-var CurrentTable, myToken, destCaseIDMsg = ''
+var myToken, destCaseIDMsg = ''
 var initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
 var srcCaseActivityIDs =[]
 var destCaseIDisValid = false
@@ -103,14 +103,24 @@ var changeCustomer = function() {
 			var chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 			initObject.method = 'PUT';
 			initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
-			fetch(chgCustomerURL, initObject)
+
+
+			if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
+						writeDIV('finalstep', 'both cases already have the same customer: ' + window.bufferCase.customer.id);
+						resolve('same customer')
+			} else {
+				fetch(chgCustomerURL, initObject)
 					.then(() => {
-						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
-						resolve('yep');
+						writeDIV('finalstep', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
+						resolve('customer changed');
 							})
-						})
+						}})
 						return promise;
-						}
+					}
+
+
+
+
 
 /* Reusable function for getting activity IDs of source case*/
 var getSourceActivityIDs = function() {
@@ -144,7 +154,7 @@ function moveActivities(){
 }
 
 /* Reusable function for fetching the case data and put it on a table*/
-function buildTableAndLogout() {
+function buildTableAndLogout(CurrentTable) {
 fetch(getCaseUrl, initObject)
 		.then(function(response){
 					return response.json()})
@@ -165,7 +175,7 @@ fetch(getCaseUrl, initObject)
 								'</TD><TD>' + window.bufferCase.subject +
 								'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
 								//put the table in place
-							writeDIV(window.CurrentTable, myTable)
+							writeDIV(CurrentTable, myTable)
 						})
 			.then(() => {
 			logTheFuckOut()
@@ -214,10 +224,9 @@ function processDestCaseID() {
 
 						SecondUserLogin
 						.then(function(fromResolve){
-								window.CurrentTable = 'secondTable'
 								console.log('session ID: ' + window.myToken);
 								//build the table again, this time place it on the second DIV
-									buildTableAndLogout()
+									buildTableAndLogout('secondTable')
 									writeDIV('mergeCaseButton', '<button onclick="mergeCases()">Merge Cases</button>')
 				})}
 /*******  *******  *******  *******  *******  *******  *******
@@ -228,14 +237,11 @@ function mergeCases() {
 		console.clear()
 
 			// same case?
-			if (window.srcCaseProperties.id == window.bufferCase.id /*&& window.srcCaseProperties.customer.id == window.bufferCase.customer.id*/) {
+			if (window.srcCaseProperties.id == window.bufferCase.id) {
 				writeDIV('finalstep', 'both cases are the same: ' + window.bufferCase.id);
 
 				// same customer?
-			}	else if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-						writeDIV('finalstep', 'both cases have the same customer: ' + window.bufferCase.customer.id);
-
-					}	else {
+			}	else  {
 						/* again, refresh headers and create a new promise for the login */
 						freshHeaders()
 						let ThirdUserLogin = new Promise(function(resolve, reject) {
@@ -266,11 +272,9 @@ let FirstUserLogin = new Promise(function(resolve, reject) {
 
 FirstUserLogin
 		.then(function(fromResolve){
-				// enforce buildTableAndLogout function to work on the source case
-				window.CurrentTable = 'firstTable'
-				//
+
 				console.log('session ID: ' + window.myToken);
-				buildTableAndLogout()
+				buildTableAndLogout('firstTable')
 
 								})
 				// catch means "if error"
