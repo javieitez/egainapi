@@ -135,9 +135,9 @@ var getSourceActivityIDs = function() {
 			//restart the array, then populate it with the activities
 			window.srcCaseActivityIDs =[]
 			for (i =0; i < Object.keys(data.activity).length; i++){
-				window.srcCaseActivityIDs.push(data.activity[0].id)
+				window.srcCaseActivityIDs.push(data.activity[i].id)
 					}
-			console.log("First action: Get activity IDs "+ window.srcCaseActivityIDs);
+			console.log("Get activity IDs "+ window.srcCaseActivityIDs);
 			resolve('again, yep');
 				})
 			})
@@ -195,12 +195,10 @@ function processDestCaseID() {
 				//reset the DIVs
 				writeDIV('mergeCaseButton', '')
 				writeDIV('finalstep', '')
-
-				//before going on,
 				//move the buffered object from the previous step to a fixed place
 				window.srcCaseProperties = window.bufferCase
 
-				// let's go
+				// All set, let's go
 				var destCaseID = document.getElementById("destCaseID").value
 				getCaseUrl = baseUrl + apiCaseCall + destCaseID
 
