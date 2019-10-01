@@ -77,17 +77,22 @@ function logTheFuckOut() {
 
 /* LOGIN and GET SESSION ID */
 function initLoginParams(resolve, reject) {
-fetch(loginUrl, initObject)
-	.then(function (response) {
-				if (response.ok) {
-					resolve('logged in');
-					window.myToken = response.headers.get('X-egain-session');
-					initObject.method = 'GET';
-					initObject.body = null
-					initObject.headers.set('X-egain-session', window.myToken);
-				} else {
-					reject('not logged in');}
-														})}
+	fetch(loginUrl, initObject)
+		.then(function (response) {
+					if (response.ok) {
+						resolve('logged in');
+						window.myToken = response.headers.get('X-egain-session');
+						initObject.method = 'GET';
+						initObject.body = null
+						initObject.headers.set('X-egain-session', window.myToken);
+					} else {
+						reject('not logged in');}
+															})}
+
+/* Reusable function for updating DIV elements */
+function writeDIV(element, message) {
+		document.getElementById(element).innerHTML = message}
+
 
 /*******  *******  *******  *******  *******  *******  *******
 						Other functions
@@ -160,7 +165,7 @@ fetch(getCaseUrl, initObject)
 								'</TD><TD>' + window.bufferCase.subject +
 								'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
 								//put the table in place
-							document.getElementById(window.CurrentTable).innerHTML =  myTable
+							writeDIV(window.CurrentTable, myTable)
 						})
 			.then(() => {
 			logTheFuckOut()
@@ -170,10 +175,6 @@ fetch(getCaseUrl, initObject)
 					fetch(logoutUrl, initObject)
 				})
 }
-/* Reusable function for writing the status DIV */
-function writeFinalStep(x) {
-	document.getElementById('finalstep').innerHTML = x}
-
 
 /*******  *******  *******  *******  *******  *******  *******
 			BUTTON (meta)FUNCTIONS
@@ -181,6 +182,10 @@ function writeFinalStep(x) {
 	 		function for the Submit button
 *******  *******  *******  *******  *******  *******  *******/
 function processDestCaseID() {
+				//reset the DIVs
+				writeDIV('mergeCaseButton', '')
+				writeDIV('finalstep', '')
+
 				//before going on,
 				//move the buffered object from the previous step to a fixed place
 				window.srcCaseProperties = window.bufferCase
@@ -188,15 +193,17 @@ function processDestCaseID() {
 				// let's go
 				var destCaseID = document.getElementById("destCaseID").value
 				getCaseUrl = baseUrl + apiCaseCall + destCaseID
+
 				if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
-				destCaseIDMsg = "Destination Case ID must be a 7 digit number";
-				submitOK = "false"
-				destCaseIDisValid = false;} else {
-					document.getElementById("destCaseIDheader").innerHTML = 'Destination Case'
+					destCaseIDMsg = "Destination Case ID must be a 7 digit number";
+					submitOK = "false"
+					destCaseIDisValid = false;}
+				else {
+					writeDIV("destCaseIDheader", 'Destination Case')
 					destCaseIDMsg = 'Destination Case will be ' + destCaseID + '<BR> Fetching case details, please wait...'
 					destCaseIDisValid = true
 				}
-					document.getElementById("secondTable").innerHTML = destCaseIDMsg;
+					writeDIV("secondTable", destCaseIDMsg);
 					/* login for the second time,
 					first reboot the headers object*/
 					freshHeaders()
@@ -211,37 +218,39 @@ function processDestCaseID() {
 								console.log('session ID: ' + window.myToken);
 								//build the table again, this time place it on the second DIV
 									buildTableAndLogout()
-									document.getElementById('mergeCaseButton').innerHTML = '<button onclick="mergeCases()">Merge Cases</button>'
+									writeDIV('mergeCaseButton', '<button onclick="mergeCases()">Merge Cases</button>')
 				})}
 /*******  *******  *******  *******  *******  *******  *******
 	function for the mergeCases button
 *******  *******  *******  *******  *******  *******  *******/
 function mergeCases() {
+
 		console.clear()
-		writeFinalStep('cases ' + window.srcCaseProperties.id + ' and ' + window.bufferCase.id + ' will be merged')
 
-		/* again, refresh headers and create a new promise for the login */
-		freshHeaders()
-		let ThirdUserLogin = new Promise(function(resolve, reject) {
-				initLoginParams(resolve, reject)
-			});
-
-
-		ThirdUserLogin
-		.then(function(fromResolve){
 			// same case?
-			if (window.srcCaseProperties.id == window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-				writeFinalStep('both cases are the same: ' + window.bufferCase.id);
+			if (window.srcCaseProperties.id == window.bufferCase.id /*&& window.srcCaseProperties.customer.id == window.bufferCase.customer.id*/) {
+				writeDIV('finalstep', 'both cases are the same: ' + window.bufferCase.id);
+
 				// same customer?
 			}	else if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-						writeFinalStep('both cases have the same customer: ' + window.bufferCase.customer.id);
+						writeDIV('finalstep', 'both cases have the same customer: ' + window.bufferCase.customer.id);
+
 					}	else {
+						/* again, refresh headers and create a new promise for the login */
+						freshHeaders()
+						let ThirdUserLogin = new Promise(function(resolve, reject) {
+								initLoginParams(resolve, reject)
+							});
+
 						//everything OK,  go
+						ThirdUserLogin
+						.then(function(fromResolve){
+
 						changeCustomer()
 							.then(() => getSourceActivityIDs())
 							.then(() => moveActivities())
 							.then(() => logTheFuckOut())
-					}})}
+					})}}
 
 
 /*******  *******  *******  *******  *******  *******  *******
