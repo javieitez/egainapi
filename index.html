@@ -101,7 +101,7 @@ var changeCustomer = function() {
 			fetch(chgCustomerURL, initObject)
 					.then(() => {
 						console.log('Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
-						console.log(initObject.body)
+						resolve('yep');
 							})
 						})
 						return promise;
@@ -122,7 +122,8 @@ var getSourceActivityIDs = function() {
 			for (i =0; i < Object.keys(data.activity).length; i++){
 				window.srcCaseActivityIDs.push(data.activity[0].id)
 					}
-			console.log(window.srcCaseActivityIDs);
+			console.log("First action: Get activity IDs "+ window.srcCaseActivityIDs);
+			resolve('again, yep');
 				})
 			})
 			return promise;;
@@ -216,6 +217,7 @@ function processDestCaseID() {
 	function for the mergeCases button
 *******  *******  *******  *******  *******  *******  *******/
 function mergeCases() {
+		console.clear()
 		writeFinalStep('cases ' + window.srcCaseProperties.id + ' and ' + window.bufferCase.id + ' will be merged')
 
 		/* again, refresh headers and create a new promise for the login */
@@ -236,9 +238,9 @@ function mergeCases() {
 					}	else {
 						//everything OK,  go
 						changeCustomer()
-							.then(() => getSourceActivityIDs()
-							.then(() => moveActivities()
-							.then(() => logTheFuckOut())))
+							.then(() => getSourceActivityIDs())
+							.then(() => moveActivities())
+							.then(() => logTheFuckOut())
 					}})}
 
 
