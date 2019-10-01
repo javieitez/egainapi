@@ -137,7 +137,7 @@ var getSourceActivityIDs = function() {
 			for (i =0; i < Object.keys(data.activity).length; i++){
 				window.srcCaseActivityIDs.push(data.activity[i].id)
 					}
-			console.log("Get activity IDs "+ window.srcCaseActivityIDs);
+			console.log("activities "+ window.srcCaseActivityIDs + " will be moved");
 			resolve('again, yep');
 				})
 			})
@@ -145,40 +145,49 @@ var getSourceActivityIDs = function() {
 }
 
 // Move the activities to the destination case
-function moveActivities(){
+var moveActivities = function() {
+	var promise = new Promise(function(resolve, reject) {
+	initObject.method = 'PUT';
+	var moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' //+ +'/changecase'
 	for (n = 0; n < window.srcCaseActivityIDs.length; n++ ){
-	console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
+		initObject.body = {"id": window.bufferCase.id }
+		moveactivityURL = baseUrl + '/ws/v12/interaction/activity/'
+											+ window.srcCaseActivityIDs[n] +'/changecase'
+		fetch(moveactivityURL, initObject)
+
+		console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
 							window.srcCaseProperties.id +" to case " + window.bufferCase.id);
 	}
-	return 'ok';
-}
+	resolve('ok');
+	return promise;
+})}
 
 /* Reusable function for fetching the case data and put it on a table*/
 function buildTableAndLogout(CurrentTable) {
-fetch(getCaseUrl, initObject)
+	fetch(getCaseUrl, initObject)
 		.then(function(response){
-					return response.json()})
-							.then(function(data){
-									window.bufferCase = data.case[0]
-									// prevent unassigned case from crashing the function
-										var caseOwner = ''
-										if (typeof window.bufferCase.owner.user === 'undefined') {
-											caseOwner = 'unassigned'} else {
-											caseOwner = window.bufferCase.owner.user.name
-										}
-									// convert source Case data to HTML TABLE
-									myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
-									myTable +=
-								'<TR><TD>' + window.bufferCase.id + '<BR> (' + window.bufferCase.status.value + ')'+
-								'</TD><TD>' + window.bufferCase.customer.customerName + '<br>(ID: ' + window.bufferCase.customer.id +')'+
-								'</TD><TD>' + caseOwner +
-								'</TD><TD>' + window.bufferCase.subject +
-								'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
-								//put the table in place
-							writeDIV(CurrentTable, myTable)
-						})
-			.then(() => {
-			logTheFuckOut()
+				return response.json()})
+						.then(function(data){
+								window.bufferCase = data.case[0]
+								// prevent unassigned case from crashing the function
+									var caseOwner = ''
+									if (typeof window.bufferCase.owner.user === 'undefined') {
+										caseOwner = 'unassigned'} else {
+										caseOwner = window.bufferCase.owner.user.name
+									}
+								// convert source Case data to HTML TABLE
+								myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
+								myTable +=
+							'<TR><TD>' + window.bufferCase.id + '<BR> (' + window.bufferCase.status.value + ')'+
+							'</TD><TD>' + window.bufferCase.customer.customerName + '<br>(ID: ' + window.bufferCase.customer.id +')'+
+							'</TD><TD>' + caseOwner +
+							'</TD><TD>' + window.bufferCase.subject +
+							'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
+							//put the table in place
+						writeDIV(CurrentTable, myTable)
+					})
+		.then(() => {
+		logTheFuckOut()
 			})
 			.catch(function(err){
 					console.log("Something went wrong!", err);
@@ -248,13 +257,11 @@ function mergeCases() {
 
 						//everything OK,  go
 						ThirdUserLogin
-						.then(function(fromResolve){
-
-						changeCustomer()
+						.then(() => changeCustomer())
 							.then(() => getSourceActivityIDs())
 							.then(() => moveActivities())
 							.then(() => logTheFuckOut())
-					})}}
+					}}
 
 
 /*******  *******  *******  *******  *******  *******  *******
