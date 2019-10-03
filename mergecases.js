@@ -61,7 +61,7 @@ function initLoginParams(resolve, reject) {
 						resolve('logged in');
 						window.myToken = response.headers.get('X-egain-session');
 						initObject.method = 'GET';
-						initObject.body = null
+						initObject.body = null;
 						initObject.headers.set('X-egain-session', window.myToken);
 					} else {
 						reject('not logged in');}
@@ -92,19 +92,16 @@ var changeCustomer = function() {
 						writeDIV('finalstep', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
 						resolve('customer changed');
 							})
+						.catch(() => console.log(response.json))
 						}})
 						return promise;
 					}
 
-
-
-
-
 /* Reusable function for getting activity IDs of source case*/
 var getSourceActivityIDs = function() {
 	var promise = new Promise(function(resolve, reject) {
-	var listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href
-	initObject.body = null
+	var listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href;
+	initObject.body = null;
 	initObject.method = 'GET';
 	fetch(listActivitiesURL, initObject)
 		.then(function(response){
@@ -115,7 +112,7 @@ var getSourceActivityIDs = function() {
 			for (i =0; i < Object.keys(data.activity).length; i++){
 				window.srcCaseActivityIDs.push(data.activity[i].id)
 					}
-			console.log("activities "+ window.srcCaseActivityIDs + " will be moved");
+			console.log("activities "+ window.srcCaseActivityIDs.toString() + " will be moved");
 			resolve('again, yep');
 				})
 			})
@@ -126,18 +123,18 @@ var getSourceActivityIDs = function() {
 var moveActivities = function() {
 	var promise = new Promise(function(resolve, reject) {
 
-	var moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' //+ +'/changecase'
-	for (n = 0; n < window.srcCaseActivityIDs.length; n++ ){
-    initObject.method = 'PUT';
+		var moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString() +'/changecase'
+
+		initObject.method = 'PUT';
+		console.log(initObject.method);
+
     initObject.body = {"id": window.bufferCase.id }
-		moveactivityURL = baseUrl + '/ws/v12/interaction/activity/'
-											+ window.srcCaseActivityIDs[n] +'/changecase'
-    console.log(initObject);
-    fetch(moveactivityURL, initObject)
+		fetch(moveactivityURL, initObject)
       .then(function(response){
-		    console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
+					    console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
 							window.srcCaseProperties.id +" to case " + window.bufferCase.id);
-            })}
+            })
+			.catch(() => console.log(initObject))
 	resolve('ok');
 	return promise;
 })}
@@ -149,12 +146,13 @@ function buildTableAndLogout(CurrentTable) {
 				return response.json()})
 						.then(function(data){
 								window.bufferCase = data.case[0]
+
 								// prevent unassigned case from crashing the function
 									var caseOwner = ''
 									if (typeof window.bufferCase.owner.user === 'undefined') {
 										caseOwner = 'unassigned'} else {
-										caseOwner = window.bufferCase.owner.user.name
-									}
+										caseOwner = window.bufferCase.owner.user.name }
+
 								// convert source Case data to HTML TABLE
 								myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
 								myTable +=
