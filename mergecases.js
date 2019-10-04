@@ -1,4 +1,5 @@
-// FOR DEBUGGING
+/*jshint esversion: 6 */
+
 console.clear();
 /*******  *******  *******  *******  *******  *******  *******
 					 VARS, INITS and miscellaneous stuff
@@ -7,23 +8,23 @@ console.clear();
 var srcCaseID = getQuery("srcCaseID");   // Example '2699230'
 
 // credentials are hardcoded here for testing, will be replaced by session ID
-var myCredentials = '{ "userName": "nhtestcti1" , "password": "nhtest1234"}'
+var myCredentials = '{ "userName": "nhtestcti1" , "password": "nhtest1234"}';
 
 //compose the miscellaneous URLs we'll need later
-var apiCaseCall = "/system/ws/v12/interaction/case/"
-var domainUrl = 'nhhotelsdev-de.egain.cloud' //'bo-mail.nh-hotels.com'
-var protocolUrl = 'https://'
-var baseUrl = protocolUrl + domainUrl
-var loginUrl = baseUrl +'/system/ws/v12/authentication/user/login'
-var logoutUrl = baseUrl + '/system/ws/v12/authentication/user/logout'
-var getCaseUrl = baseUrl + apiCaseCall + srcCaseID
+var apiCaseCall = "/system/ws/v12/interaction/case/";
+var domainUrl = 'nhhotelsdev-de.egain.cloud'; //'bo-mail.nh-hotels.com'
+var protocolUrl = 'https://';
+var baseUrl = protocolUrl + domainUrl;
+var loginUrl = baseUrl +'/system/ws/v12/authentication/user/login';
+var logoutUrl = baseUrl + '/system/ws/v12/authentication/user/logout';
+var getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 
 
 //empty objects required later in the global scope
-var myToken, destCaseIDMsg = ''
+var myToken, destCaseIDMsg = '';
 var initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
-var srcCaseActivityIDs =[]
-var destCaseIDisValid = false
+var srcCaseActivityIDs =[];
+var destCaseIDisValid = false;
 
 /* The Headers object is refreshed for every new request,
 so declare a reusable function for it*/
@@ -40,17 +41,17 @@ headers: new Headers({'accept': 'application/json',
 }
 
 //extract the params from URL
-	function getQuery(name){
-		 if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
-					return decodeURIComponent(name[1]);
+function getQuery(name){
+ 	if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
+		return decodeURIComponent(name[1]);
 	}
 
 /*******  *******  *******  *******  *******  *******  *******
 		LOGIN AND LOGOUT functions
 *******  *******  *******  *******  *******  *******  *******/
 function logTheFuckOut() {
-	initObject.method = 'DELETE'
-	fetch(logoutUrl, initObject)
+	initObject.method = 'DELETE';
+	fetch(logoutUrl, initObject);
 }
 
 /* LOGIN and GET SESSION ID */
@@ -65,7 +66,7 @@ function initLoginParams(resolve, reject) {
 						initObject.headers.set('X-egain-session', window.myToken);
 					} else {
 						reject('not logged in');}
-															})}
+					});}
 
 /* Reusable function for updating DIV elements */
 function writeDIV(element, message) {
@@ -116,7 +117,7 @@ var getSourceActivityIDs = function() {
 			resolve('again, yep');
 				})
 			})
-			return promise;;
+			return promise;
 }
 
 // Move the activities to the destination case
@@ -191,17 +192,17 @@ function processDestCaseID() {
 
 				if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
 					destCaseIDMsg = "Destination Case ID must be a 7 digit number";
-					submitOK = "false"
+					submitOK = "false";
 					destCaseIDisValid = false;}
 				else {
 					writeDIV("destCaseIDheader", 'Destination Case')
 					destCaseIDMsg = 'Destination Case will be ' + destCaseID + '<BR> Fetching case details, please wait...'
-					destCaseIDisValid = true
+					destCaseIDisValid = true;
 				}
 					writeDIV("secondTable", destCaseIDMsg);
 					/* login for the second time,
 					first reboot the headers object*/
-					freshHeaders()
+					freshHeaders();
 					/* then create a new promise for the login */
 					let SecondUserLogin = new Promise(function(resolve, reject) {
 							initLoginParams(resolve, reject)
@@ -211,7 +212,7 @@ function processDestCaseID() {
 						.then(function(fromResolve){
 								console.log('session ID: ' + window.myToken);
 								//build the table again, this time place it on the second DIV
-									buildTableAndLogout('secondTable')
+									buildTableAndLogout('secondTable');
 									writeDIV('mergeCaseButton', '<button onclick="mergeCases()">Merge Cases</button>')
 				})}
 /*******  *******  *******  *******  *******  *******  *******
