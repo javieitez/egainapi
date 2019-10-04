@@ -129,7 +129,7 @@ var moveActivities = function() {
 		initObject.method = 'PUT';
 		console.log(initObject.method);
 
-    initObject.body = {"id": window.bufferCase.id }
+    initObject.body = {"id": window.bufferCase.id };
 		fetch(moveactivityURL, initObject)
       .then(function(response){
 					    console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
@@ -146,16 +146,16 @@ function buildTableAndLogout(CurrentTable) {
 		.then(function(response){
 				return response.json()})
 						.then(function(data){
-								window.bufferCase = data.case[0]
+								window.bufferCase = data.case[0];
 
 								// prevent unassigned case from crashing the function
-									var caseOwner = ''
+									var caseOwner = '';
 									if (typeof window.bufferCase.owner.user === 'undefined') {
 										caseOwner = 'unassigned'} else {
 										caseOwner = window.bufferCase.owner.user.name }
 
 								// convert source Case data to HTML TABLE
-								myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>'
+								myTable = '<TABLE><TR><TH>Case ID & status</TH><TH>Customer</TH><TH>Owner</TH><TH>Subject</TH><TH>Due Date</TH></TR>';
 								myTable +=
 							'<TR><TD>' + window.bufferCase.id + '<BR> (' + window.bufferCase.status.value + ')'+
 							'</TD><TD>' + window.bufferCase.customer.customerName + '<br>(ID: ' + window.bufferCase.customer.id +')'+
@@ -163,7 +163,7 @@ function buildTableAndLogout(CurrentTable) {
 							'</TD><TD>' + window.bufferCase.subject +
 							'</TD><TD>' + window.bufferCase.dueDate + '</TD></TR></TABLE>';
 							//put the table in place
-						writeDIV(CurrentTable, myTable)
+						writeDIV(CurrentTable, myTable);
 					})
 		.then(() => {
 		logTheFuckOut()
@@ -184,11 +184,11 @@ function processDestCaseID() {
 				writeDIV('mergeCaseButton', '')
 				writeDIV('finalstep', '')
 				//move the buffered object from the previous step to a fixed place
-				window.srcCaseProperties = window.bufferCase
+				window.srcCaseProperties = window.bufferCase;
 
 				// All set, let's go
-				var destCaseID = document.getElementById("destCaseID").value
-				getCaseUrl = baseUrl + apiCaseCall + destCaseID
+				var destCaseID = document.getElementById("destCaseID").value;
+				getCaseUrl = baseUrl + apiCaseCall + destCaseID;
 
 				if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
 					destCaseIDMsg = "Destination Case ID must be a 7 digit number";
@@ -196,7 +196,7 @@ function processDestCaseID() {
 					destCaseIDisValid = false;}
 				else {
 					writeDIV("destCaseIDheader", 'Destination Case')
-					destCaseIDMsg = 'Destination Case will be ' + destCaseID + '<BR> Fetching case details, please wait...'
+					destCaseIDMsg = 'Destination Case will be ' + destCaseID + '<BR> Fetching case details, please wait...';
 					destCaseIDisValid = true;
 				}
 					writeDIV("secondTable", destCaseIDMsg);
