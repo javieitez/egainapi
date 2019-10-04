@@ -3,7 +3,7 @@ p {
   font-size: 0.800em; /* 14px/16=0.875em */
 }
 
-h3 {
+h1, h2, h3 {
   font-family: arial, sans-serif;
 }
 

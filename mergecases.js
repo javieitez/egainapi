@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 console.clear();
 /*******  *******  *******  *******  *******  *******  *******
 					 VARS, INITS and miscellaneous stuff
@@ -42,7 +40,7 @@ headers: new Headers({'accept': 'application/json',
 
 //extract the params from URL
 function getQuery(name){
- 	if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
+	if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
 		return decodeURIComponent(name[1]);
 	}
 
@@ -129,12 +127,12 @@ var moveActivities = function() {
 		initObject.method = 'PUT';
 		console.log(initObject.method);
 
-    initObject.body = {"id": window.bufferCase.id };
+		initObject.body = {"id": window.bufferCase.id };
 		fetch(moveactivityURL, initObject)
-      .then(function(response){
-					    console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
+			.then(function(response){
+							console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
 							window.srcCaseProperties.id +" to case " + window.bufferCase.id);
-            })
+						})
 			.catch(() => console.log(initObject))
 	resolve('ok');
 	return promise;
@@ -177,7 +175,7 @@ function buildTableAndLogout(CurrentTable) {
 /*******  *******  *******  *******  *******  *******  *******
 			BUTTON (meta)FUNCTIONS
 *******  *******  *******  *******(meta)  *******  *******  *******
-	 		function for the Submit button
+			function for the Submit button
 *******  *******  *******  *******  *******  *******  *******/
 function processDestCaseID() {
 				//reset the DIVs
