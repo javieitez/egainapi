@@ -3,26 +3,26 @@ console.clear();
 					 VARS, INITS and miscellaneous stuff
 *******  *******  *******  *******  *******  *******  *******/
 
-var srcCaseID = getQuery("srcCaseID");   // Example '2699230'
+let srcCaseID = getQuery("srcCaseID");   // Example '2699230'
 
 // credentials are hardcoded here for testing, will be replaced by session ID
-var myCredentials = '{ "userName": "nhtestcti1" , "password": "nhtest1234"}';
+let myCredentials = '{ "userName": "nhtestcti1" , "password": "nhtest1234"}';
 
 //compose the miscellaneous URLs we'll need later
-var apiCaseCall = "/system/ws/v12/interaction/case/";
-var domainUrl = 'nhhotelsdev-de.egain.cloud'; //'bo-mail.nh-hotels.com'
-var protocolUrl = 'https://';
-var baseUrl = protocolUrl + domainUrl;
-var loginUrl = baseUrl +'/system/ws/v12/authentication/user/login';
-var logoutUrl = baseUrl + '/system/ws/v12/authentication/user/logout';
-var getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
+let apiCaseCall = "/system/ws/v12/interaction/case/";
+let domainUrl = 'nhhotelsdev-de.egain.cloud'; //'bo-mail.nh-hotels.com'
+let protocolUrl = 'https://';
+let baseUrl = protocolUrl + domainUrl;
+let loginUrl = baseUrl +'/system/ws/v12/authentication/user/login';
+let logoutUrl = baseUrl + '/system/ws/v12/authentication/user/logout';
+let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 
 
 //empty objects required later in the global scope
-var myToken, destCaseIDMsg = '';
-var initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
-var srcCaseActivityIDs =[];
-var destCaseIDisValid = false;
+let myToken, destCaseIDMsg = '';
+let initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
+let srcCaseActivityIDs =[];
+let destCaseIDisValid = false;
 
 /* The Headers object is refreshed for every new request,
 so declare a reusable function for it*/
@@ -75,9 +75,9 @@ function writeDIV(element, message) {
 						Other functions
 *******  *******  *******  *******  *******  *******  *******/
 /* Reusable function for changing the customer of source case*/
-var changeCustomer = function() {
-		var promise = new Promise(function(resolve, reject) {
-			var chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
+let changeCustomer = function() {
+		let promise = new Promise(function(resolve, reject) {
+			let chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 			initObject.method = 'PUT';
 			initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
 
@@ -89,8 +89,7 @@ var changeCustomer = function() {
 				fetch(chgCustomerURL, initObject)
 					.then(function(response) {
 						if (!response.ok){
-							console.log(response);
-							writeDIV('finalstep', response.status + ': ' + response.statusText + '. Something went wrong');
+							writeDIV('finalstep', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
 							resolve('customer unchanged');
 						} else {
 						writeDIV('finalstep', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
@@ -102,9 +101,9 @@ var changeCustomer = function() {
 					}
 
 /* Reusable function for getting activity IDs of source case*/
-var getSourceActivityIDs = function() {
-	var promise = new Promise(function(resolve, reject) {
-	var listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href;
+let getSourceActivityIDs = function() {
+	let promise = new Promise(function(resolve, reject) {
+	let listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href;
 	initObject.body = null;
 	initObject.method = 'GET';
 	fetch(listActivitiesURL, initObject)
@@ -124,10 +123,10 @@ var getSourceActivityIDs = function() {
 }
 
 // Move the activities to the destination case
-var moveActivities = function() {
-	var promise = new Promise(function(resolve, reject) {
+let moveActivities = function() {
+	let promise = new Promise(function(resolve, reject) {
 
-		var moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString() +'/changecase'
+		let moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString() +'/changecase'
 
 		initObject.method = 'PUT';
 		console.log(initObject.method);
@@ -152,7 +151,7 @@ function buildTableAndLogout(CurrentTable) {
 								window.bufferCase = data.case[0];
 
 								// prevent unassigned case from crashing the function
-									var caseOwner = '';
+									let caseOwner = '';
 									if (typeof window.bufferCase.owner.user === 'undefined') {
 										caseOwner = 'unassigned'} else {
 										caseOwner = window.bufferCase.owner.user.name }
@@ -190,7 +189,7 @@ function processDestCaseID() {
 				window.srcCaseProperties = window.bufferCase;
 
 				// All set, let's go
-				var destCaseID = document.getElementById("destCaseID").value;
+				let destCaseID = document.getElementById("destCaseID").value;
 				getCaseUrl = baseUrl + apiCaseCall + destCaseID;
 
 				if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
