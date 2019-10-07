@@ -87,11 +87,16 @@ var changeCustomer = function() {
 						resolve('same customer')
 			} else {
 				fetch(chgCustomerURL, initObject)
-					.then(() => {
+					.then(function(response) {
+						if (!response.ok){
+							console.log(response);
+							writeDIV('finalstep', response.status + ': ' + response.statusText + '. Something went wrong');
+							resolve('customer unchanged');
+						} else {
 						writeDIV('finalstep', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
 						resolve('customer changed');
-							})
-						.catch(() => console.log(response.json))
+							}})
+
 						}})
 						return promise;
 					}
@@ -234,9 +239,12 @@ function mergeCases() {
 
 						//everything OK,  go
 						ThirdUserLogin
-						.then(() => changeCustomer())
+
 							.then(() => getSourceActivityIDs())
+							//moveactivities must go first, in order to reopen the case if it was closed
 							.then(() => moveActivities())
+							//then change the customer
+							.then(() => changeCustomer())
 							.then(() => logTheFuckOut())
 					}}
 
