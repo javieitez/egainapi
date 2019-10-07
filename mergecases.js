@@ -22,7 +22,7 @@ let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 let myToken, destCaseIDMsg = '';
 let initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
 let srcCaseActivityIDs =[];
-let destCaseIDisValid = false;
+var destCIDisValid = false;
 
 /* The Headers object is refreshed for every new request,
 so declare a reusable function for it*/
@@ -182,41 +182,43 @@ function buildTableAndLogout(CurrentTable) {
 			function for the Submit button
 *******  *******  *******  *******  *******  *******  *******/
 function processDestCaseID() {
-				//reset the DIVs
-				writeDIV('mergeCaseButton', '')
-				writeDIV('finalstep', '')
-				//move the buffered object from the previous step to a fixed place
-				window.srcCaseProperties = window.bufferCase;
-
-				// All set, let's go
-				let destCaseID = document.getElementById("destCaseID").value;
-				getCaseUrl = baseUrl + apiCaseCall + destCaseID;
-
-				if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
-					destCaseIDMsg = "Destination Case ID must be a 7 digit number";
-					submitOK = "false";
-					destCaseIDisValid = false;}
-				else {
+		//reset the DIVs
+		writeDIV('mergeCaseButton', '')
+		writeDIV('finalstep', '')
+		//move the buffered object from the previous step to a fixed place
+		window.srcCaseProperties = window.bufferCase;
+		// All set, let's go
+		let destCaseID = document.getElementById("destCaseID").value;
+		getCaseUrl = baseUrl + apiCaseCall + destCaseID;
+			if (isNaN(destCaseID) || destCaseID < 1111111 || destCaseID > 9999999) {
+				destCaseIDMsg = "Destination Case ID must be a 7 digit number";
+				window.destCIDisValid = false;
+			}	else {
 					writeDIV("destCaseIDheader", 'Destination Case')
 					destCaseIDMsg = 'Destination Case will be ' + destCaseID + '<BR> Fetching case details, please wait...';
-					destCaseIDisValid = true;
+					window.destCIDisValid = true;
 				}
-					writeDIV("secondTable", destCaseIDMsg);
-					/* login for the second time,
-					first reboot the headers object*/
-					freshHeaders();
-					/* then create a new promise for the login */
-					let SecondUserLogin = new Promise(function(resolve, reject) {
-							initLoginParams(resolve, reject)
+		writeDIV("secondTable", destCaseIDMsg);
+		/* login for the second time,
+		first reboot the headers object*/
+		freshHeaders();
+		/* then create a new promise for the login */
+		let SecondUserLogin = new Promise(function(resolve, reject) {
+			initLoginParams(resolve, reject)
 						});
 
-						SecondUserLogin
-						.then(function(fromResolve){
-								console.log('session ID: ' + window.myToken);
-								//build the table again, this time place it on the second DIV
-									buildTableAndLogout('secondTable');
-									writeDIV('mergeCaseButton', '<button onclick="mergeCases()">Merge Cases</button>')
-				})}
+		SecondUserLogin
+			.then(function(fromResolve){
+					console.log('session ID: ' + window.myToken);
+					//build the table again, this time place it on the second DIV
+
+					if (window.destCIDisValid === false) {
+						writeDIV('mergeCaseButton', '');
+						logTheFuckOut()
+					}else{
+						writeDIV('mergeCaseButton', '<button onclick="mergeCases()">Merge Cases</button>')
+						buildTableAndLogout('secondTable');
+					}})}
 /*******  *******  *******  *******  *******  *******  *******
 	function for the mergeCases button
 *******  *******  *******  *******  *******  *******  *******/
