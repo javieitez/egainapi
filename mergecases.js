@@ -76,28 +76,25 @@ function writeDIV(element, message) {
 *******  *******  *******  *******  *******  *******  *******/
 /* Reusable function for changing the customer of source case*/
 let changeCustomer = function() {
-		let promise = new Promise(function(resolve, reject) {
-			let chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
-			initObject.method = 'PUT';
-			initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
-
-
-			if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-						writeDIV('finalstep', 'both cases already have the same customer: ' + window.bufferCase.customer.id);
-						resolve('same customer')
-			} else {
-				fetch(chgCustomerURL, initObject)
-					.then(function(response) {
-						if (!response.ok){
-							writeDIV('finalstep', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
-							resolve('customer unchanged');
-						} else {
+	let promise = new Promise(function(resolve, reject) {
+		let chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
+		initObject.method = 'PUT';
+		initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
+		if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
+			writeDIV('finalstep', 'both cases already have the same customer: ' + window.bufferCase.customer.id);
+			resolve('same customer')
+		} else {
+			fetch(chgCustomerURL, initObject)
+				.then(function(response) {
+					if (!response.ok){
+						writeDIV('finalstep', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
+						resolve('customer unchanged');
+					} else {
 						writeDIV('finalstep', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
 						resolve('customer changed');
-							}})
-
-						}})
-						return promise;
+					}})
+					}})
+			return promise;
 					}
 
 /* Reusable function for getting activity IDs of source case*/
@@ -126,7 +123,7 @@ let getSourceActivityIDs = function() {
 let moveActivities = function() {
 	let promise = new Promise(function(resolve, reject) {
 
-		let moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString() +'/changecase'
+		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString() +'/changecase'
 
 		initObject.method = 'PUT';
 		console.log(initObject.method);
