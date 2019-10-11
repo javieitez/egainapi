@@ -123,10 +123,10 @@ let getSourceActivityIDs = function() {
 let moveActivities = function() {
 	let promise = new Promise(function(resolve, reject) {
 
-		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString() +'/changecase'
+		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') +'/changecase'
 
 		initObject.method = 'PUT';
-		console.log(initObject.method);
+		//console.log(initObject);
 
 		initObject.body = {"id": window.bufferCase.id };
 		fetch(moveactivityURL, initObject)
