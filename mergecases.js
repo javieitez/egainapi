@@ -126,13 +126,11 @@ let getSourceActivityIDs = function() {
 				if (window.srcCaseActivityIDs.toString() == '') {
 					logTheFuckOut()
 					reject('no valid activity IDs')
-				}
-
-					}
-			console.log(window.srcCaseActivityIDs.toString() + " will be moved");
-			resolve('again yep');
-				})
-			})
+				} else {
+					resolve('again yep');
+				}}
+				console.log(window.srcCaseActivityIDs.toString() + " will be moved");
+			})})
 			return promise;
 }
 
@@ -141,7 +139,7 @@ let moveActivities = function() {
 	let promise = new Promise(function(resolve, reject) {
 		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') +'/changecase?relateCase=yes'
 		initObject.method = 'PUT';
-		initObject.body = {"id": window.bufferCase.id };
+		initObject.body = '{"id": ' + window.bufferCase.id + ' }';
 
 		window.testthisshit = initObject.body;
 
