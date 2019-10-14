@@ -107,13 +107,30 @@ let getSourceActivityIDs = function() {
 		.then(function(response){
 			return response.json()})
 		.then(function(data){
+
 			//restart the array, then populate it with the activities
 			window.srcCaseActivityIDs =[]
 			for (i =0; i < Object.keys(data.activity).length; i++){
-				window.srcCaseActivityIDs.push(data.activity[i].id)
+
+					//console.log(data.activity[i]);
+
+				//ONLY activities with a valid status are pushed into the array
+				if (data.activity[i].status.value == 'awaiting_assignment' || data.activity[i].status.value == 'assigned') {
+
+					console.log(data.activity[i].id + ' is in a valid status');
+					window.srcCaseActivityIDs.push(data.activity[i].id)
+				} else {
+					console.log(data.activity[i].id + ' is ' + data.activity[i].status.value);
+				}
+				//exit if no valid activities left
+				if (window.srcCaseActivityIDs.toString() == '') {
+					logTheFuckOut()
+					reject('no valid activity IDs')
+				}
+
 					}
-			console.log("activities "+ window.srcCaseActivityIDs.toString() + " will be moved");
-			resolve('again, yep');
+			console.log(window.srcCaseActivityIDs.toString() + " will be moved");
+			resolve('again yep');
 				})
 			})
 			return promise;
@@ -122,13 +139,12 @@ let getSourceActivityIDs = function() {
 // Move the activities to the destination case
 let moveActivities = function() {
 	let promise = new Promise(function(resolve, reject) {
-
-		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') +'/changecase'
-
+		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') +'/changecase?relateCase=yes'
 		initObject.method = 'PUT';
-		//console.log(initObject);
-
 		initObject.body = {"id": window.bufferCase.id };
+
+		window.testthisshit = initObject.body;
+
 		fetch(moveactivityURL, initObject)
 			.then(function(response){
 							console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
@@ -138,6 +154,7 @@ let moveActivities = function() {
 	resolve('ok');
 	return promise;
 })}
+
 
 /* Reusable function for fetching the case data and put it on a table*/
 function buildTableAndLogout(CurrentTable) {
