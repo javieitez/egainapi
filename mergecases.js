@@ -66,10 +66,14 @@ function initLoginParams(resolve, reject) {
 						reject('not logged in');}
 					});}
 
-/* Reusable function for updating DIV elements */
+/* Reusable function for replacing the content of a DIV */
 function writeDIV(element, message) {
 		document.getElementById(element).innerHTML = message}
 
+/* Reusable function for appending to a DIV */
+function append2DIV(element, message) {
+	let w = document.getElementById(element);
+	w.innerHTML += message}
 
 /*******  *******  *******  *******  *******  *******  *******
 						Other functions
@@ -81,16 +85,16 @@ let changeCustomer = function() {
 		initObject.method = 'PUT';
 		initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
 		if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-			writeDIV('finalstep', 'both cases already have the same customer: ' + window.bufferCase.customer.id);
+			append2DIV('actionsLog', 'both cases already have the same customer: ' + window.bufferCase.customer.id + '<BR>');
 			resolve('same customer')
 		} else {
 			fetch(chgCustomerURL, initObject)
 				.then(function(response) {
 					if (!response.ok){
-						writeDIV('finalstep', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
+						append2DIV('actionsLog', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong<BR>');
 						resolve('customer unchanged');
 					} else {
-						writeDIV('finalstep', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id );
+						append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id + '<BR>');
 						resolve('customer changed');
 					}})
 					}})
@@ -112,24 +116,31 @@ let getSourceActivityIDs = function() {
 			window.srcCaseActivityIDs =[]
 			for (i =0; i < Object.keys(data.activity).length; i++){
 
-					//console.log(data.activity[i]);
-
 				//ONLY activities with a valid status are pushed into the array
 				if (data.activity[i].status.value == 'awaiting_assignment' || data.activity[i].status.value == 'assigned') {
-
-					console.log(data.activity[i].id + ' is in a valid status');
+					append2DIV('actionsLog',data.activity[i].id + ' is in a valid status <BR>');
 					window.srcCaseActivityIDs.push(data.activity[i].id)
 				} else {
-					console.log(data.activity[i].id + ' is ' + data.activity[i].status.value);
-				}
+					append2DIV('actionsLog', data.activity[i].id + ' is ' + data.activity[i].status.value + '<BR>');
+				}}
 				//exit if no valid activities left
 				if (window.srcCaseActivityIDs.toString() == '') {
 					logTheFuckOut()
 					reject('no valid activity IDs')
 				} else {
 					resolve('again yep');
-				}}
-				console.log(window.srcCaseActivityIDs.toString() + " will be moved");
+				}
+
+
+
+				if (window.srcCaseActivityIDs.toString() === '') {
+						append2DIV('actionsLog', 'Nothing can be moved from the source to the destination case <BR>');
+				} else {
+				append2DIV('actionsLog', window.srcCaseActivityIDs.toString() + ' will be moved <BR>');}
+
+
+
+
 			})})
 			return promise;
 }
@@ -141,18 +152,26 @@ let moveActivities = function() {
 		initObject.method = 'PUT';
 		initObject.body = '{"id": ' + window.bufferCase.id + ' }';
 
-		window.testthisshit = initObject.body;
-
 		fetch(moveactivityURL, initObject)
 			.then(function(response){
-							console.log("Moving activity " + window.srcCaseActivityIDs[n] + " from case "+
-							window.srcCaseProperties.id +" to case " + window.bufferCase.id);
+						if (response.ok) {
+							append2DIV('actionsLog', "<strong>&#10004;</strong> Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
+							window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + '<BR>');
+						} else {
+							append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
+							console.log(response);
+						}
+
+
 						})
-			.catch(() => console.log(initObject))
+
+
+
+				.catch(() => console.log('something fishy happened in moveActivities (O_o)'));
+
 	resolve('ok');
 	return promise;
 })}
-
 
 /* Reusable function for fetching the case data and put it on a table*/
 function buildTableAndLogout(CurrentTable) {
@@ -196,7 +215,7 @@ function buildTableAndLogout(CurrentTable) {
 function processDestCaseID() {
 		//reset the DIVs
 		writeDIV('mergeCaseButton', '')
-		writeDIV('finalstep', '')
+		writeDIV('actionsLog', '')
 		//move the buffered object from the previous step to a fixed place
 		window.srcCaseProperties = window.bufferCase;
 		// All set, let's go
@@ -240,7 +259,7 @@ function mergeCases() {
 
 			// same case?
 			if (window.srcCaseProperties.id == window.bufferCase.id) {
-				writeDIV('finalstep', 'both cases are the same: ' + window.bufferCase.id);
+				writeDIV('actionsLog', 'both cases are the same: ' + window.bufferCase.id);
 
 				// same customer?
 			}	else  {
