@@ -73,28 +73,42 @@ function writeDIV(element, message) {
 /* Reusable function for appending to a DIV */
 function append2DIV(element, message) {
 	let w = document.getElementById(element);
-	w.innerHTML += message}
+	w.innerHTML += message + '<BR>'}
 
 /*******  *******  *******  *******  *******  *******  *******
 						Other functions
 *******  *******  *******  *******  *******  *******  *******/
+function changeActivityCustomer(activityID, customerID){
+	append2DIV('actionsLog', 'Activity ID: ' + activityID + ', customer ' + customerID + ' must be changed' )
+	initObject.method = 'PUT';
+	initObject.body = '{"activity": [{"id":"' + activityID +
+										'","customer": {"contactPersons": {"contactPerson": [{"contactPoints": {"contactPoint":[{"id": "' +
+										customerID +  '"}]}}]}}}]}'
+	var tempURL = baseUrl + '/system/ws/v12/interaction/activity/changecustomer'
+	fetch(tempURL, initObject)
+
+	}
+
+
+
+
 /* Reusable function for changing the customer of source case*/
-let changeCustomer = function() {
+let changeCaseCustomer = function() {
 	let promise = new Promise(function(resolve, reject) {
 		let chgCustomerURL = baseUrl + apiCaseCall + window.srcCaseProperties.id + '/changecustomer'
 		initObject.method = 'PUT';
 		initObject.body = '{ "customer": { "id": ' + window.bufferCase.customer.id + ' }}'
 		if (window.srcCaseProperties.id != window.bufferCase.id && window.srcCaseProperties.customer.id == window.bufferCase.customer.id) {
-			append2DIV('actionsLog', 'both cases already have the same customer: ' + window.bufferCase.customer.id + '<BR>');
+			append2DIV('actionsLog', 'both cases already have the same customer: ' + window.bufferCase.customer.id);
 			resolve('same customer')
 		} else {
 			fetch(chgCustomerURL, initObject)
 				.then(function(response) {
 					if (!response.ok){
-						append2DIV('actionsLog', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong<BR>');
+						append2DIV('actionsLog', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
 						resolve('customer unchanged');
 					} else {
-						append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id + '<BR>');
+						append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id);
 						resolve('customer changed');
 					}})
 					}})
@@ -116,12 +130,20 @@ let getSourceActivityIDs = function() {
 			window.srcCaseActivityIDs =[]
 			for (i =0; i < Object.keys(data.activity).length; i++){
 
+
 				//ONLY activities with a valid status are pushed into the array
 				if (data.activity[i].status.value == 'awaiting_assignment' || data.activity[i].status.value == 'assigned') {
-					append2DIV('actionsLog',data.activity[i].id + ' is in a valid status <BR>');
+					append2DIV('actionsLog',data.activity[i].id + ' is in a valid status');
+					//for those that qualify: if customer differs, change it
+
+					if (data.activity[i].customer.id != window.srcCaseProperties.customer.id) {
+
+						changeActivityCustomer(data.activity[i].id, window.srcCaseProperties.customer.id)
+					}
+
 					window.srcCaseActivityIDs.push(data.activity[i].id)
 				} else {
-					append2DIV('actionsLog', data.activity[i].id + ' is ' + data.activity[i].status.value + '<BR>');
+					append2DIV('actionsLog', data.activity[i].id + ' is ' + data.activity[i].status.value);
 				}}
 				//exit if no valid activities left
 				if (window.srcCaseActivityIDs.toString() == '') {
@@ -134,9 +156,9 @@ let getSourceActivityIDs = function() {
 
 
 				if (window.srcCaseActivityIDs.toString() === '') {
-						append2DIV('actionsLog', 'Nothing can be moved from the source to the destination case <BR>');
+						append2DIV('actionsLog', 'Nothing can be moved from the source to the destination case');
 				} else {
-				append2DIV('actionsLog', window.srcCaseActivityIDs.toString() + ' will be moved <BR>');}
+				append2DIV('actionsLog', window.srcCaseActivityIDs.toString() + ' will be moved');}
 
 
 
@@ -156,7 +178,7 @@ let moveActivities = function() {
 			.then(function(response){
 						if (response.ok) {
 							append2DIV('actionsLog', "<strong>&#10004;</strong> Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
-							window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + '<BR>');
+							window.srcCaseProperties.id +" to destination case " + window.bufferCase.id);
 						} else {
 							append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
 							console.log(response);
@@ -276,7 +298,7 @@ function mergeCases() {
 							//moveactivities must go first, in order to reopen the case if it was closed
 							.then(() => moveActivities())
 							//then change the customer
-							.then(() => changeCustomer())
+							.then(() => changeCaseCustomer())
 							.then(() => logTheFuckOut())
 					}}
 
