@@ -106,7 +106,7 @@ let changeCaseCustomer = function() {
 				.then(function(response) {
 					if (!response.ok){
 						append2DIV('actionsLog', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
-						reject('customer unchanged');
+						resolve('customer unchanged');
 					} else {
 						append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id);
 						resolve('customer changed');
