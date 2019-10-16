@@ -19,7 +19,7 @@ let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 
 
 //empty objects required later in the global scope
-let myToken, destCaseIDMsg = '';
+let mustBeChanged, contactPointID, myToken, destCaseIDMsg = '';
 let initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
 let srcCaseActivityIDs =[];
 var destCIDisValid = false;
@@ -106,7 +106,7 @@ let changeCaseCustomer = function() {
 				.then(function(response) {
 					if (!response.ok){
 						append2DIV('actionsLog', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
-						resolve('customer unchanged');
+						reject('customer unchanged');
 					} else {
 						append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id);
 						resolve('customer changed');
@@ -134,23 +134,33 @@ let getSourceActivityIDs = function() {
 				//ONLY activities with a valid status are pushed into the array
 				if (data.activity[i].status.value == 'awaiting_assignment' || data.activity[i].status.value == 'assigned') {
 					append2DIV('actionsLog',data.activity[i].id + ' is in a valid status');
+					window.mustBeChanged = data.activity[i].id;
 					//for those that qualify: if customer differs, change it
-
 					if (data.activity[i].customer.id != window.srcCaseProperties.customer.id) {
+						//must fetch the contact point ID first
+						var tempURL = baseUrl + window.bufferCase.customer.link.href
+						initObject.method = 'GET';
+						initObject.body = null;
+						fetch(tempURL, initObject)
+							.then(function(response){
+								return response.json()})
+							.then(function(data){
+								contactPointID = data.customer[0].contactPersons.contactPerson[0].contactPoints.contactPoint[0].id
+								return(window.contactPointID);})
+							.then(function(whatever){
+								changeActivityCustomer(window.mustBeChanged, whatever)
+							})
 
-						changeActivityCustomer(data.activity[i].id, window.srcCaseProperties.customer.id)
-					}
-
-					window.srcCaseActivityIDs.push(data.activity[i].id)
-				} else {
+					window.srcCaseActivityIDs.push(data.activity[i].id);
+					} else {
 					append2DIV('actionsLog', data.activity[i].id + ' is ' + data.activity[i].status.value);
-				}}
+				}}}
 				//exit if no valid activities left
 				if (window.srcCaseActivityIDs.toString() == '') {
 					logTheFuckOut()
 					reject('no valid activity IDs')
 				} else {
-					resolve('again yep');
+					resolve('again yep')
 				}
 
 
@@ -181,7 +191,7 @@ let moveActivities = function() {
 							window.srcCaseProperties.id +" to destination case " + window.bufferCase.id);
 						} else {
 							append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
-							console.log(response);
+							//console.log(response);
 						}
 
 
