@@ -10,11 +10,40 @@
 
 <body>
 <script>
-// Internet Explorer 6-11
+// Detect Internet Explorer 6-11
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 var IEerrmsg = 'The Change Case app won\'t work on Internet Explorer. \r Please use Chrome or Firefox instead.'
 if (isIE == true) {
 	alert(IEerrmsg);}
+
+//extract the params from URL
+function getQuery(name){
+	if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
+		return decodeURIComponent(name[1]);
+	}
+
+/* Reusable function for replacing the content of a DIV */
+function writeDIV(element, message) {
+		document.getElementById(element).innerHTML = message}
+
+/* Reusable function for appending to a DIV */
+function append2DIV(element, message) {
+	let w = document.getElementById(element);
+	w.innerHTML += message + '<BR>'}
+
+/*Declare some stuff needed by the script */
+const domainUrl = 'nhhotelsdev-de.egain.cloud'; //'bo-mail.nh-hotels.com'
+const protocolUrl = 'https://';
+const baseUrl = protocolUrl + domainUrl;
+
+const loginUrl = baseUrl +'/system/ws/v12/authentication/user/login';
+const logoutUrl = baseUrl + '/system/ws/v12/authentication/user/logout';
+
+const brandNewHeaders = new Headers({'accept': 'application/json',
+			'Accept-Language': 'en-US',
+			 'content-type': 'application/json'})
+
+
 </script>
 
 	<h3>Source Case </h3>
@@ -27,6 +56,9 @@ if (isIE == true) {
 <p id="secondTable"> </p>
 <p id="mergeCaseButton"> </p>
 <p id="actionsLog"> </p>
+
+<script src="initVars.js"></script>
 <script src="mergecases.js"></script>
+
 </body>
 </html>
