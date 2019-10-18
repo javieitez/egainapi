@@ -90,6 +90,9 @@ function processDestCaseID() {
 	}
 }
 
+function mergeCases(){
+	console.log('cases will be merged');
+}
 
 //Ready, steady, GO!!!
 egLogin()
