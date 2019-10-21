@@ -11,13 +11,21 @@ function validateCaseID(n){
 
 
 /* build the request headers
-Example: buildHeaders('POST', '', brandNewHeaders) */
+Example: buildHeaders('POST', null, JSON object to string) */
 function buildHeaders(method, body, headers){
 	initObject = {
 		method: method,
 		mode: 'cors', // MUST BE cors
 		body : body,
 		headers: headers,};}
+
+//modify the headers on the fly
+function switchMethodAndBody(x, y){
+			initObject.method = x
+			initObject.body = y
+		}
+
+
 
 /* LOGIN and GET SESSION ID */
 function egLogin(){
@@ -39,10 +47,6 @@ function egLogout() {
 			fetch(logoutUrl, initObject);
 				}
 
-function switchMethodAndBody(x, y){
-	initObject.method = x
-	initObject.body = y
-}
 
 function validActivityStatus(z){
 if (z == 'awaiting_assignment' || z == 'assigned') {
@@ -108,6 +112,7 @@ function processDestCaseID() {
 /*function for the mergeCases button*/
 function mergeCases(){
 	console.clear()
+	writeDIV('mergeCaseButton', '')
 	if (window.srcCaseProperties.id === window.bufferCase.id) {
 		writeDIV('actionsLog', 'both cases are the same: ' + window.bufferCase.id);
 		writeDIV('mergeCaseButton', '')
@@ -118,13 +123,8 @@ function mergeCases(){
 		.then(() => getSourceActivityIDs()
 			.catch(() => console.log('No shit'))
 		)
-		//movea ctivities must go first, in order to reopen the case if it was closed
-
-		//then change the customer
 		.then(() => changeCaseCustomer())
 		.then(() => moveActivitiesAndLogout())
-		//.then(() => egLogout())
-
 	}}
 
 function storeFirstCase(){
@@ -150,7 +150,7 @@ function getSourceActivityIDs () {
 				window.srcCaseActivityIDs.push(data.activity[i].id);
 				//if customer differs, change it
 				if (data.activity[i].customer.id != window.srcCaseProperties.customer.id) {
-          fetchAndChangeActivityCustomer(data.activity[i].id, window.srcCaseProperties.customer.id)
+          fetchAndChgActivityCustomer(data.activity[i].id, window.srcCaseProperties.customer.id)
 				}} else {
 				append2DIV('actionsLog', data.activity[i].id + ' is ' + data.activity[i].status.value);
 			}}
@@ -168,7 +168,7 @@ function getSourceActivityIDs () {
 //			return promise;
 }
 
-function fetchAndChangeActivityCustomer(activity, customer) {
+function fetchAndChgActivityCustomer(activity, customer) {
 //must fetch the contact point ID first
 var tempURL = baseUrl + window.bufferCase.customer.link.href
 switchMethodAndBody('GET', null)
@@ -200,11 +200,20 @@ function moveActivitiesAndLogout() {
 		})}
 
 function changeActivityCustomer(activityID, customerID){
-	append2DIV('actionsLog', 'Activity ID: ' + activityID + ', customer ' + customerID + ' must be changed' )
+	return new Promise(function(resolve, reject){
 	switchMethodAndBody('PUT', '{"activity": [{"id":"' + activityID + '","customer": {"contactPersons": {"contactPerson": [{"contactPoints": {"contactPoint":[{"id": "' + customerID +  '"}]}}]}}}]}')
 	var tempURL = baseUrl + '/system/ws/v12/interaction/activity/changecustomer'
 	fetch(tempURL, initObject)
-	}
+	.then(function(response) {
+		if (!response.ok){
+			append2DIV('actionsLog', 'Activity ' + activityID + ' belongs to customer ' + customerID )
+			resolve('customer unchanged');
+		} else {
+			append2DIV('actionsLog', 'Customer for activity' + activityID + ' has been changed' )
+			resolve('customer changed');
+			}
+	resolve('customer changed')
+})})}
 
 function changeCaseCustomer() {
 	return new Promise(function(resolve, reject) {
@@ -235,4 +244,6 @@ let firstLoginOnPageLoad = egLogin()
 
 firstLoginOnPageLoad
 	.then(() => buildTableAndLogout('firstTable'))
-	.then(() => storeFirstCase())
+	//.then(() => storeFirstCase())
+
+window.document.title =  'Source Case ' + srcCaseID
