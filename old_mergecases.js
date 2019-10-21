@@ -19,7 +19,7 @@ let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 
 
 //empty objects required later in the global scope
-let mustBeChanged, contactPointID, myToken, destCaseIDMsg = '';
+var mustBeChanged, contactPointID, myToken, destCaseIDMsg = '';
 let initObject, srcCaseProperties, destCaseProperties, bufferCase, CurrentCase = {};
 let srcCaseActivityIDs =[];
 var destCIDisValid = false;
