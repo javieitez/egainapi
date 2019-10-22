@@ -1,6 +1,7 @@
 console.clear();
 let apiCaseCall = "/system/ws/v12/interaction/case/";
 let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
+var srcCaseActivityIDs = []
 
 /*make sure the entered case ID is a valid one*/
 function validateCaseID(n){
@@ -38,6 +39,7 @@ function egLogin(){
 							initObject.headers.set('X-egain-session', myToken);
 							console.log('logged in, session ID: ' + myToken);
 							resolve('logged in, session id: ' + myToken);
+							console.log('step 1: login');
 						} else {
 							reject('not logged in')
 ;}})})}
@@ -45,6 +47,7 @@ function egLogin(){
 function egLogout() {
 			initObject.method = 'DELETE';
 			fetch(logoutUrl, initObject);
+			console.log('Final Step: logout');
 				}
 
 
@@ -121,66 +124,77 @@ function mergeCases(){
 		writeDIV('mergeCaseButton', '')
 
 	} else {
-		thirdTrigger = egLogin()
+		let thirdTrigger = egLogin()
 		thirdTrigger
+		.then(() => changeCaseCustomer())
 		.then(() => getSourceActivityIDs()
 			.catch(() => console.log('No shit'))
 		)
+
 		.then(() => moveActivities())
-		.then(() => changeCaseCustomer())
+
 		.then(() => egLogout())
 	}}
 
-/* get the valid activity IDs of source case*/
-function getSourceActivityIDs () {
-	return new Promise(function(resolve, reject) {
-	let listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href;
-	switchMethodAndBody('GET', null)
-	fetch(listActivitiesURL, initObject)
-	.then(function(response){
-		return response.json();})
-	.then(function(data){
-		//restart the array, then populate it with the activities
-		window.srcCaseActivityIDs =[]
-		for (i =0; i < Object.keys(data.activity).length; i++){
-			//but ONLY with activities with a valid status
-			if (validActivityStatus(data.activity[i].status.value) == true) {
-				// for those that qualify:
-				append2DIV('actionsLog',data.activity[i].id + ' is in a valid status');
-				window.srcCaseActivityIDs.push(data.activity[i].id);
+	/* get the valid activity IDs of source case*/
+	function getSourceActivityIDs () {
+		return new Promise(function(resolve, reject) {
+		let listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href;
+		console.log('Step 3: getSourceActivityIDs')
+		switchMethodAndBody('GET', null)
+		fetch(listActivitiesURL, initObject)
+		.then(function(response){
+			return response.json();})
+		.then(function(data){
+
+			//check for activities with mismatched customers
+			for (x of data.activity){
 				//if customer differs, change it
-				if (data.activity[i].customer.id != window.srcCaseProperties.customer.id) {
-          fetchAndChgActivityCustomer(data.activity[i].id, window.srcCaseProperties.customer.id)
-				}} else {
-				append2DIV('actionsLog', data.activity[i].id + ' is ' + data.activity[i].status.value);
-			}}
-			//exit if no valid activities left
-			if (window.srcCaseActivityIDs.toString() == '') {
-				append2DIV('actionsLog', 'Nothing can be moved from the source to the destination case');
-				reject('no valid activity IDs');
+			if (x.customer.id != window.srcCaseProperties.customer.id){
+				console.log('Step 3.1: ' + window.bufferCase.customer.link.href);
+				//must fetch the contact point ID first
+				var getCstmrUrl = baseUrl + window.bufferCase.customer.link.href
+				switchMethodAndBody('GET', null)
+				fetch(getCstmrUrl, initObject)
+				.then(function(response){
+						return response.json();})
+				.then(function(data){
+					contactPointID = data.customer[0].contactPersons.contactPerson[0].contactPoints.contactPoint[0].id
+					console.log(contactPointID);
+					//now proceed to change it
+					switchMethodAndBody('PUT', '{"activity": [{"id":"' + x.id + '","customer": {"contactPersons": {"contactPerson": [{"contactPoints": {"contactPoint":[{"id": "' + contactPointID +  '"}]}}]}}}]}')
+					var chgCsUrl = baseUrl + '/system/ws/v12/interaction/activity/changecustomer'
+					return chgCsUrl})
+					.then(function(chgCsUrl){
+						fetch(chgCsUrl, initObject)
+						console.log('Activity ' + x.id + ', customer ' + x.customer.id + '. Must be changed to ' + window.srcCaseProperties.customer.id);
+					})}
+				}return data
+			})
 
-			} else {
-				append2DIV('actionsLog', window.srcCaseActivityIDs.toString() + ' will be moved');
-				resolve('activity IDs changed: ' + window.srcCaseActivityIDs.toString())
-			}
+			.then(function(data){
+			//restart the array, then populate it with the activities
+			window.srcCaseActivityIDs =[]
+			for (i of data.activity){
+				//but ONLY with activities with a valid status
+				if (validActivityStatus(i.status.value) == true) {
+					// for those that qualify:
+					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '</I> <strong>&#10004;</strong>');
+					window.srcCaseActivityIDs.push(i.id);
+					} else {
+					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> <strong>&#10008;</strong>');
+				}}
+				//exit if no valid activities left
+				if (window.srcCaseActivityIDs.toString() == '') {
+					append2DIV('actionsLog', 'Nothing can be moved from the source to the destination case');
+					reject('no valid activity IDs');
 
-			})})
-//			return promise;
-}
-
-function fetchAndChgActivityCustomer(activity, customer) {
-//must fetch the contact point ID first
-var tempURL = baseUrl + window.bufferCase.customer.link.href
-switchMethodAndBody('GET', null)
-fetch(tempURL, initObject)
-	.then(function(response){
-		return response.json();})
-	.then(function(data){
-		contactPointID = data.customer[0].contactPersons.contactPerson[0].contactPoints.contactPoint[0].id
-		return(window.contactPointID);})
-	.then(function(w){
-		changeActivityCustomer(activity, w)
-	})}
+				} else {
+					append2DIV('actionsLog', window.srcCaseActivityIDs.toString() + ' will be moved');
+					resolve('activity IDs changed: ' + window.srcCaseActivityIDs.toString())
+					//console.log('Step 3: getSourceActivityIDs');
+				}
+	})})}
 
 // Move the activities to the destination case
 function moveActivities() {
@@ -192,10 +206,12 @@ function moveActivities() {
 			if (response.ok) {
 				append2DIV('actionsLog', "<strong>&#10004;</strong> Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
 				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id);
+				resolve('ok')
 			} else {
 				append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
+				egLogout()
 			}})
-			resolve('ok');
+			console.log('step 4: moveActivities');
 		})}
 
 function changeActivityCustomer(activityID, customerID){
@@ -205,14 +221,16 @@ function changeActivityCustomer(activityID, customerID){
 	fetch(tempURL, initObject)
 	.then(function(response) {
 		if (!response.ok){
-			append2DIV('actionsLog', 'Activity ' + activityID + ' belongs to customer ' + customerID )
-			resolve('customer unchanged');
+			//append2DIV('actionsLog', 'Activity ' + activityID + ' belongs to customer ' + customerID )
+			//reject('customer unchanged');
+			console.log('Problem on 3.1 changeActivityCustomer')
 		} else {
 			append2DIV('actionsLog', 'Customer for activity' + activityID + ' has been changed' )
-			resolve('customer changed');
+			//resolve('customer changed');
+			console.log('Step 3.1: changeActivityCustomer');
 			}
-	resolve('customer changed')
-})})}
+
+		})})}
 
 function changeCaseCustomer() {
 	return new Promise(function(resolve, reject) {
@@ -233,9 +251,9 @@ function changeCaseCustomer() {
 				}})
 				}
 				resolve('no changes in customer association')
-			})
-	//return promise;
-	}
+				console.log('Step 2: changeCaseCustomer');
+			}
+		)}
 
 
 
