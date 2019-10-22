@@ -48,6 +48,9 @@ function egLogout() {
 				}
 
 
+function storeFirstCase(){
+	window.srcCaseProperties = window.bufferCase;}
+
 function validActivityStatus(z){
 if (z == 'awaiting_assignment' || z == 'assigned') {
   return true;
@@ -123,13 +126,10 @@ function mergeCases(){
 		.then(() => getSourceActivityIDs()
 			.catch(() => console.log('No shit'))
 		)
+		.then(() => moveActivities())
 		.then(() => changeCaseCustomer())
-		.then(() => moveActivitiesAndLogout())
+		.then(() => egLogout())
 	}}
-
-function storeFirstCase(){
-	window.srcCaseProperties = window.bufferCase;
-	}
 
 /* get the valid activity IDs of source case*/
 function getSourceActivityIDs () {
@@ -183,7 +183,7 @@ fetch(tempURL, initObject)
 	})}
 
 // Move the activities to the destination case
-function moveActivitiesAndLogout() {
+function moveActivities() {
 	return new Promise(function(resolve, reject) {
 		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') + '/changecase?relateCase=yes'
 		switchMethodAndBody('PUT', '{"id": ' + window.bufferCase.id + ' }')
@@ -192,11 +192,10 @@ function moveActivitiesAndLogout() {
 			if (response.ok) {
 				append2DIV('actionsLog', "<strong>&#10004;</strong> Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
 				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id);
-				egLogout()
 			} else {
 				append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
-				egLogout()
 			}})
+			resolve('ok');
 		})}
 
 function changeActivityCustomer(activityID, customerID){
@@ -232,7 +231,9 @@ function changeCaseCustomer() {
 				append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id);
 				resolve('customer changed');
 				}})
-				}})
+				}
+				resolve('no changes in customer association')
+			})
 	//return promise;
 	}
 
