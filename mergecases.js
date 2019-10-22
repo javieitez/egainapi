@@ -171,7 +171,6 @@ function mergeCases(){
 					})}
 				}return data
 			})
-
 			.then(function(data){
 			//restart the array, then populate it with the activities
 			window.srcCaseActivityIDs =[]
