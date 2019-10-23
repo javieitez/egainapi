@@ -161,7 +161,7 @@ function mergeCases(){
 								changeActivityCustomer(i.id, mainContactPoint)
 								console.log(i.id + ' customer is ' + i.customer.id + ' should be ' + mainCustomer);
 							}
-						//})
+						//}) // the previous .then
 
 					} else {
 					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> <strong>&#10008;</strong>');
