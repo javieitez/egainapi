@@ -1,7 +1,9 @@
 console.clear();
-let apiCaseCall = "/system/ws/v12/interaction/case/";
+const apiCaseCall = "/system/ws/v12/interaction/case/";
 let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 var srcCaseActivityIDs = []
+const okSign = '<font color="green"><strong> &#10004;</strong></font>'
+const errorSign = '<font color="red"><strong> &#10007;</strong></font>'
 
 /*make sure the entered case ID is a valid one*/
 function validateCaseID(n){
@@ -9,6 +11,16 @@ function validateCaseID(n){
 	return false;
 }	else {
 	return true;	}}
+
+function PluralizeActivity(n){
+	if (n == 1) {return 'activity '}
+	else {return 'activities '}
+}
+
+function capitalizeFirstLetter(string){
+		return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 
 
 /* build the request headers
@@ -157,7 +169,7 @@ function mergeCases(){
 				if (validActivityStatus(i.status.value) == true) {
 
 					// for those that qualify:
-					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '</I> <strong>&#10004;</strong>');
+					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '</I>' + okSign);
 					window.srcCaseActivityIDs.push(i.id);
 					//also, check if customer if valid (change if not)
 
@@ -171,7 +183,7 @@ function mergeCases(){
 						//}) // the previous .then
 
 					} else {
-					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> <strong>&#10008;</strong>');
+					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> ' + errorSign);
 				}}
 				//exit if no valid activities left
 				if (window.srcCaseActivityIDs.toString() == '') {
@@ -179,7 +191,7 @@ function mergeCases(){
 					reject('no valid activity IDs');
 
 				} else {
-					append2DIV('actionsLog', window.srcCaseActivityIDs.toString() + ' will be moved');
+					append2DIV('actionsLog', capitalizeFirstLetter(PluralizeActivity(window.srcCaseActivityIDs.length)) + window.srcCaseActivityIDs.toString() + ' will be moved');
 					resolve('activity IDs changed: ' + window.srcCaseActivityIDs.toString())
 				}
 	})})}
@@ -192,11 +204,13 @@ function moveActivities() {
 		fetch(moveactivityURL, initObject)
 		.then(function(response){
 			if (response.ok) {
-				append2DIV('actionsLog', "Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
-				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + '<strong>&#10004;</strong>');
+
+				append2DIV('actionsLog', window.srcCaseActivityIDs.length + ' ' + PluralizeActivity(window.srcCaseActivityIDs.length) + "moved from source case "+
+				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + okSign );
 				resolve('ok')
 			} else {
-				append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
+				append2DIV('actionsLog', '<font color="red"><strong>' + response.status + ' ' + response.statusText + '</strong></font> - something unexpected happened' + errorSign +
+																	'<BR>Reloading this page might fix the problem')
 				egLogout()
 			}})
 			console.log('Step 4: moveActivities');
@@ -232,7 +246,7 @@ function changeCaseCustomer() {
 				append2DIV('actionsLog', '<strong>' + response.status + ' - ' + response.statusText + '</strong>. Something went wrong');
 				resolve('customer unchanged');
 			} else {
-				append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id);
+				append2DIV('actionsLog', 'Customer for case ' + window.srcCaseProperties.id +' changed to ' + window.bufferCase.customer.id + okSign);
 				resolve('customer changed');
 				}})
 				}
