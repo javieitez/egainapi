@@ -205,12 +205,12 @@ function moveActivities() {
 		.then(function(response){
 			if (response.ok) {
 
-				append2DIV('actionsLog', window.srcCaseActivityIDs.length + ' ' + PluralizeActivity(window.srcCaseActivityIDs.length) + "moved from source case "+
+				append2DIV('actionsLog', '<strong>Done!</strong> ' + window.srcCaseActivityIDs.length + ' ' + PluralizeActivity(window.srcCaseActivityIDs.length) + "moved from source case "+
 				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + okSign );
 				resolve('ok')
 			} else {
 				append2DIV('actionsLog', '<font color="red"><strong>' + response.status + ' ' + response.statusText + '</strong></font> - something unexpected happened' + errorSign +
-																	'<BR>Reloading this page might fix the problem')
+																	'<BR><strong>Reloading this page might fix the problem</strong>')
 				egLogout()
 			}})
 			console.log('Step 4: moveActivities');
@@ -225,7 +225,7 @@ function changeActivityCustomer(activityID, customerID){
 		if (!response.ok){
 			console.log('Problem on 3.1 change Activity Customer')
 		} else {
-			append2DIV('actionsLog', 'Customer for activity ' + activityID + ' has been changed' )
+			append2DIV('actionsLog', 'Customer for activity ' + activityID + ' has been changed' + okSign )
 			}
 
 		})}
