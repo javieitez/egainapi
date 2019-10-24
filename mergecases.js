@@ -192,8 +192,8 @@ function moveActivities() {
 		fetch(moveactivityURL, initObject)
 		.then(function(response){
 			if (response.ok) {
-				append2DIV('actionsLog', "<strong>&#10004;</strong> Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
-				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id);
+				append2DIV('actionsLog', "Activity " + window.srcCaseActivityIDs.toString() + " moved from source case "+
+				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + '<strong>&#10004;</strong>');
 				resolve('ok')
 			} else {
 				append2DIV('actionsLog', response.status + ' ' + response.statusText + ' - something unexpected happened')
