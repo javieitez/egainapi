@@ -51,7 +51,14 @@ function egLogout() {
 
 
 function storeFirstCase(){
-	window.srcCaseProperties = window.bufferCase;}
+	window.srcCaseProperties = window.bufferCase;
+	console.log(window.srcCaseProperties.status.value);
+	//Disable the submit button if the source case is closed
+	if (window.srcCaseProperties.status.value == 'closed'){
+		writeDIV('SubmitDestCaseID', 'Source Case must have at least one open activity. Please choose a different case ID and reload.')
+	}
+
+	}
 
 function validActivityStatus(z){
 if (z == 'awaiting_assignment' || z == 'assigned') {
