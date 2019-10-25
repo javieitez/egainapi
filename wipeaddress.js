@@ -7,7 +7,6 @@ function SearchEmailAddress(){
   let customerEmail = document.getElementById("emailform").value;
   let firstTrigger = egLogin()
   firstTrigger
-
   .then(() => fetchRemoteSearch(customerEmail))
   .then(() => egLogout())
 
@@ -20,9 +19,19 @@ function fetchRemoteSearch(string) {
     let remoteSearch = searchCustomerUrl + string + '&$attribute=all'
     fetch(remoteSearch, initObject)
     .then(function(response) {
-      return response;})
+      let msg = ''
+      if (response.status == 200){
+      msg = string + ' found in customer DB' + okSign
+      writeDIV('SearchLog',  msg)
+    }else {
+      msg = 'no results matching ' + string + ' ' + errorSign
+      writeDIV('SearchLog',  msg)
+    }
+    return response.json();
+    })
     .then(function(data) {
       console.log(data);
+      resolve('ok');
     })
 	})
   }
