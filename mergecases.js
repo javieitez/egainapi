@@ -1,9 +1,8 @@
 console.clear();
-const apiCaseCall = "/system/ws/v12/interaction/case/";
+const apiCaseCall = '/system/ws/v12/interaction/case/';
 let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 var srcCaseActivityIDs = []
-const okSign = '<font color="green"><strong> &#10004;</strong></font>'
-const errorSign = '<font color="red"><strong> &#10007;</strong></font>'
+
 
 /*make sure the entered case ID is a valid one*/
 function validateCaseID(n){
@@ -20,47 +19,6 @@ function PluralizeActivity(n){
 function capitalizeFirstLetter(string){
 		return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
-
-
-/* build the request headers
-Example: buildHeaders('POST', null, JSON object to string) */
-function buildHeaders(method, body, headers){
-	initObject = {
-		method: method,
-		mode: 'cors', // MUST BE cors
-		body : body,
-		headers: headers,};}
-
-//modify the headers on the fly
-function switchMethodAndBody(x, y){
-			initObject.method = x
-			initObject.body = y
-		}
-
-
-
-/* LOGIN and GET SESSION ID */
-function egLogin(){
-	return new Promise(function(resolve, reject){
-		buildHeaders('POST', myCredentials, brandNewHeaders);
-		fetch(loginUrl, initObject)
-			.then(function (response) {
-						if (response.ok) {
-							myToken = response.headers.get('X-egain-session');
-							initObject.headers.set('X-egain-session', myToken);
-							console.log('Step 1: logged in, session ID: ' + myToken);
-							resolve('logged in, session id: ' + myToken);
-						} else {
-							reject('not logged in')
-;}})})}
-/*lOGOUT*/
-function egLogout() {
-			initObject.method = 'DELETE';
-			fetch(logoutUrl, initObject);
-			console.log('Final Step: logout');
-				}
-
 
 function storeFirstCase(){
 	window.srcCaseProperties = window.bufferCase;
