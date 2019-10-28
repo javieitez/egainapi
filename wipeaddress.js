@@ -121,5 +121,8 @@ function updateArray(a, array){
 }
 
 function wipeContacts(z){
+  if (z.length == 0){
+  writeDIV('wipeLog', 'Nothing selected')
+  } else {
   writeDIV('wipeLog', z + ' will be wiped')
-}
+}}
