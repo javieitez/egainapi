@@ -2,6 +2,7 @@ console.clear();
 
 const editCustomerUrl = baseUrl + '/system/ws/v15/context/interaction/customer' //PUT
 const searchCustomerUrl = baseUrl + '/system/ws/v12/interaction/customer?email=' //GET
+var cpArray = []
 
 function emailIsValid(string){
   return /\S+@\S+\.\S+/.test(string)
@@ -40,9 +41,11 @@ function fetchRemoteSearch(string) {
     return response.json();
     })
     .then(function(data) {
+      itemsFound = data.customer[0].contactPersons.contactPerson[0].contactPoints.contactPoint.length;
+      append2DIV('SearchLog', itemsFound + ' contact '+ PluralizePoint(itemsFound) + ' found for this customer')
       tableContent = ''
       for (i of data.customer){
-        //console.log(i);
+
         //populate the table with content
         cName = i.customerName;
         //cemail = i.contactPersons.contactPerson[0].contactPoints.contactPoint[0].type.email.emailAddress;
@@ -53,7 +56,7 @@ function fetchRemoteSearch(string) {
 
             cid = x.id;
             cemail = x.type.email.emailAddress;
-            tableContent += build4RTableContent(cName, cid, cemail, clastmod);
+            tableContent += build4RTableContent(cName, cid, createCheckBox(cid) + cemail, clastmod);
           }
       }
       //then build the headers, append the previous information and create the table
@@ -82,4 +85,39 @@ function build4RTableContent(field1, field2, field3,field4){
                  '</TD><TD>' + field3 +
                  '</TD><TD>' + field4 + '</TD></TR>';
    return tableContent
+}
+
+//just return singular or plural depending on amount
+function PluralizePoint(n){
+	if (n == 1) {return 'point '}
+	else {return 'points '}
+}
+
+// create the checkbox for later selection
+function createCheckBox(boxId){
+  return '<input type="checkbox" id="' + boxId + '" onclick="updateArray(' + boxId + ', window.cpArray)">'
+}
+
+//add the selected items to an array, remove if unselected
+function updateArray(a, array){
+  var checkBox = document.getElementById(a);
+  if (checkBox.checked == true){ //action for checkbox selected
+    if (array.includes(a)){ //check if the number already exists
+      console.log(a + ' already selected');
+      console.log(cpArray);
+    } else {
+      array.push(a)
+      console.log(a + ' selected');
+      console.log(cpArray);
+    }
+  } else { //action for checkbox UNselected
+    if (array.includes(a)){
+    console.log(a + ' unselected');
+    cpArray = array.filter(function(value){return value != a});
+      console.log(cpArray);
+    } else {
+      console.log(a + ' was not selected');}
+
+
+  }
 }
