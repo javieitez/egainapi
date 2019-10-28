@@ -63,7 +63,7 @@ function fetchRemoteSearch(string) {
       fullTable = build4RTableHeader('Customer Name', 'contact point ID', 'email', 'Last Modified', tableContent)
 
       writeDIV('outputTable', fullTable)
-
+      writeDIV('wipeButton', '<button onclick="wipeContacts(cpArray)">Wipe!!</button>')
       resolve('ok');
     })
 	})
@@ -116,8 +116,10 @@ function updateArray(a, array){
     cpArray = array.filter(function(value){return value != a});
       console.log(cpArray);
     } else {
-      console.log(a + ' was not selected');}
-
-
+      console.log(a + ' was not selected');} // not gonna happen
   }
+}
+
+function wipeContacts(z){
+  writeDIV('wipeLog', z + ' will be wiped')
 }
