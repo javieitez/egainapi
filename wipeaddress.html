@@ -14,11 +14,16 @@
 
 
 <p id="SubmitEmail">email address: <input type="text" size="50" name="emailform" id="emailform">
-<button onclick="SearchEmailAddress()">Search &#x1F50D;</button></p>
+<button id="searchButton" onclick="SearchEmailAddress()">Search &#x1F50D;</button></p>
 
 <p id="SearchLog"></p>
+<p id="outputTable"></p>
 
 
+<script>
+//enter keypress on text field activates search
+enterButton('emailform', 'searchButton');
+</script>
 
 </body>
 </html>
