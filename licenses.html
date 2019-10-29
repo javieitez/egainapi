@@ -9,14 +9,15 @@
   </head>
 
   <body>
+    <script src="initVars.js"></script>
+
+
 		<p id="outputTable">Fetching data, please wait....</p>
 
-<script src="initVars.js"></script>
+
 <script>
 //var baseUrl = 'nhhotelsdev-de.egain.cloud' //'bo-mail.nh-hotels.com'
-
-
-var APIurl = baseUrl +'ws/v11/general/about/license/all'
+var APIurl = baseUrl +'/system/ws/v11/general/about/license/all'
 
 let initObject = { // INIT the fetch headers and properties
     method: 'GET',
@@ -24,7 +25,7 @@ let initObject = { // INIT the fetch headers and properties
     headers: new Headers({'accept': 'application/json'})
     };
 
-
+// UNCOMMENT FOR DEBUGGING
 // console.clear()
 
 fetch(APIurl, initObject)
