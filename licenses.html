@@ -11,12 +11,9 @@
   <body>
     <script src="initVars.js"></script>
 
-
 		<p id="outputTable">Fetching data, please wait....</p>
 
-
 <script>
-//var baseUrl = 'nhhotelsdev-de.egain.cloud' //'bo-mail.nh-hotels.com'
 var APIurl = baseUrl +'/system/ws/v11/general/about/license/all'
 
 let initObject = { // INIT the fetch headers and properties
@@ -47,7 +44,7 @@ fetch(APIurl, initObject)
 		 '</td><td>' + data.license[i].usage.used +
 		 '</td></tr>';
 	}
-        document.getElementById("outputTable").innerHTML =  myTable + ' </TABLE> <P> Data fetched on <STRONG>' + data.callInfo.timestamp +'</STRONG></p>'
+        writeDIV("outputTable", myTable + ' </TABLE> <P> Data fetched on <STRONG>' + data.callInfo.timestamp +'</STRONG></p>')
 
 })
     .catch(function (err) {
