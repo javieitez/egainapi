@@ -8,6 +8,12 @@ function emailIsValid(string){
   return /\S+@\S+\.\S+/.test(string)
 }
 
+function clearResults(){
+  writeDIV('outputTable', '' );
+  writeDIV('wipeButton', '');
+  writeDIV('wipeLog', '')
+}
+
 function SearchEmailAddress(){
   let customerEmail = document.getElementById("emailform").value;
 
@@ -17,7 +23,8 @@ function SearchEmailAddress(){
     .then(() => fetchRemoteSearch(customerEmail))
     .then(() => egLogout())
 } else {
-  writeDIV('SearchLog',  'Please enter a valid email address')
+  writeDIV('SearchLog',  'Please enter a valid email address ' + forbiddenSign)
+  clearResults()
 }
 }
 
@@ -32,13 +39,17 @@ function fetchRemoteSearch(string) {
       if (response.status == 200){
       msg = string + ' found in customer DB' + okSign
       writeDIV('SearchLog',  msg)
-    }else {
-      msg = 'no results matching ' + string + ' ' + errorSign
-      writeDIV('SearchLog',  msg)
-      resolve('nothing found')
-    }
 
     return response.json();
+    
+    }else {
+      msg = 'No results matching ' + string + ' ' + errorSign + '<p>Please make sure to enter the complete email address. Partial searches are not supported.</p>'
+      writeDIV('SearchLog',  msg);
+      clearResults();
+      resolve('nothing found');
+    }
+
+
     })
     .then(function(data) {
       itemsFound = data.customer[0].contactPersons.contactPerson[0].contactPoints.contactPoint.length;
@@ -122,7 +133,7 @@ function updateArray(a, array){
 
 function wipeContacts(z){
   if (z.length == 0){
-  writeDIV('wipeLog', 'Nothing selected')
+  writeDIV('wipeLog', 'Nothing selected ' + forbiddenSign)
   } else {
   writeDIV('wipeLog', z + ' will be wiped')
 }}
