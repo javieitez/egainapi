@@ -99,18 +99,18 @@ function updateArray(a, array){
   var checkBox = document.getElementById(a);
   if (checkBox.checked == true){ //action for checkbox selected
     if (array.includes(a)){ //check if the number already exists
-      console.log(a + ' already selected');
-      console.log(cpArray);
+      //console.log(a + ' already selected');
+      //console.log(cpArray);
     } else {
       array.push(a)
-      console.log(a + ' selected');
-      console.log(cpArray);
+      //console.log(a + ' selected');
+      //console.log(cpArray);
     }
   } else { //action for checkbox UNselected
     if (array.includes(a)){
-    console.log(a + ' unselected');
+    //console.log(a + ' unselected');
     cpArray = array.filter(function(value){return value != a});
-      console.log(cpArray);
+      //console.log(cpArray);
     } else {
       console.log(a + ' was not selected');} // not gonna happen
   }
@@ -120,20 +120,29 @@ function wipeContacts(z){
   if (z.length == 0){
   writeDIV('wipeLog', 'Nothing selected ' + forbiddenSign)
   } else {
+    console.clear()
   writeDIV('wipeLog', z + ' will be wiped')
   let secondTrigger = egLogin()
   secondTrigger
-  .then(() => fetchEditCustomer())
+  .then(() => cpArray.forEach(fetchEditCustomer))
   .then(() => egLogout())
 }}
 
 function fetchEditCustomer(y){
   return new Promise(function(resolve, reject) {
     console.log(y);
-    var tempVar = '{"id": "' + customerId + '", "contactPersons": {"contactPerson": [ {"id": "' + contactPointId + '", "contactPoints": { "contactPoint": [{"id": "289904", "type": {"email": {"emailAddress": "zzz@zzz.zz" }} }] }} ]}}'
+    var tempVar = '{"id": "' + customerId + '", "contactPersons": {"contactPerson": [ {"id": "' + contactPointId + '", "contactPoints": { "contactPoint": [{"id": "'+ y.toString() +'", "type": {"email": {"emailAddress": "zzz'+ y +'@zzz.zzz" }} }] }} ]}}'
     console.log(tempVar);
     switchMethodAndBody('PUT', tempVar)
     fetch(editCustomerUrl, initObject)
-    .then(() => resolve('whatever'))
+    .then(function(response) {
+      console.log(response);
+        if (response.ok){
+          append2DIV('wipeLog', y + ' has been wiped' + okSign)
+        } else {
+          append2DIV('wipeLog', '<strong><font color=red>' + response.status + ':</strong></font> '+ response.statusText + errorSign)
+        }
+      })
+    //.then(() => resolve('whatever'))
   })
 }
