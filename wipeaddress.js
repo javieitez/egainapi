@@ -1,6 +1,6 @@
 console.clear();
 
-const editCustomerUrl = baseUrl + '/system/ws/v15/context/interaction/customer' //PUT
+const editCustomerUrl = baseUrl + '/system/ws/v12/interaction/customer' //PUT
 const searchCustomerUrl = baseUrl + '/system/ws/v12/interaction/customer?email=' //GET
 var cpArray = []
 
@@ -41,7 +41,7 @@ function fetchRemoteSearch(string) {
       writeDIV('SearchLog',  msg)
 
     return response.json();
-    
+
     }else {
       msg = 'No results matching ' + string + ' ' + errorSign + '<p>Please make sure to enter the complete email address. Partial searches are not supported.</p>'
       writeDIV('SearchLog',  msg);
@@ -52,6 +52,9 @@ function fetchRemoteSearch(string) {
 
     })
     .then(function(data) {
+      console.log(data);
+      customerId = data.customer[0].id
+      contactPointId = data.customer[0].contactPersons.contactPerson[0].id
       itemsFound = data.customer[0].contactPersons.contactPerson[0].contactPoints.contactPoint.length;
       append2DIV('SearchLog', itemsFound + ' contact '+ PluralizePoint(itemsFound) + ' found for this customer')
       tableContent = ''
@@ -79,24 +82,6 @@ function fetchRemoteSearch(string) {
     })
 	})
   }
-
-
-
-
-
-function build4RTableHeader(h1, h2, h3, h4, content){
-  myTable = '<TABLE><TR><TH>' + h1 + '</TH><TH>'  + h2 + '</TH><TH>' +
-             h3 + '</TH><TH>'  + h4 + '</TH></TR>' + content + '</TABLE>';
-  return myTable
-}
-
-function build4RTableContent(field1, field2, field3,field4){
-   tableContent = '<TR><TD>' + field1 +
-                 '</TD><TD>' + field2 +
-                 '</TD><TD>' + field3 +
-                 '</TD><TD>' + field4 + '</TD></TR>';
-   return tableContent
-}
 
 //just return singular or plural depending on amount
 function PluralizePoint(n){
@@ -136,4 +121,19 @@ function wipeContacts(z){
   writeDIV('wipeLog', 'Nothing selected ' + forbiddenSign)
   } else {
   writeDIV('wipeLog', z + ' will be wiped')
+  let secondTrigger = egLogin()
+  secondTrigger
+  .then(() => fetchEditCustomer())
+  .then(() => egLogout())
 }}
+
+function fetchEditCustomer(y){
+  return new Promise(function(resolve, reject) {
+    console.log(y);
+    var tempVar = '{"id": "' + customerId + '", "contactPersons": {"contactPerson": [ {"id": "' + contactPointId + '", "contactPoints": { "contactPoint": [{"id": "289904", "type": {"email": {"emailAddress": "zzz@zzz.zz" }} }] }} ]}}'
+    console.log(tempVar);
+    switchMethodAndBody('PUT', tempVar)
+    fetch(editCustomerUrl, initObject)
+    .then(() => resolve('whatever'))
+  })
+}
