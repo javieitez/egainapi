@@ -126,29 +126,31 @@ function wipeContacts(z){
   cpCounter = 0
   secondTrigger
   .then(() => cpArray.forEach(fetchEditCustomer))
-  .then(() => egLogout())
+  //.then(() => egLogout())
 }}
 
 function fetchEditCustomer(y){
   return new Promise(function(resolve, reject) {
-    cpCounter += 1
-    console.log('Processing item ' + cpCounter + ' of ' + cpArray.length);
-    var tempVar = '{"id": "' + customerId + '", "contactPersons": {"contactPerson": [ {"id": "' + contactPointId + '", "contactPoints": { "contactPoint": [{"id": "'+ y.toString() +'", "type": {"email": {"emailAddress": "zzz'+ y +'@zzz.zzz" }} }] }} ]}}'
-    console.log(tempVar);
+    var wipePattern = 'zzzzzzzzzzzzz' + y + '@zzzz.zzz'
+    var tempVar = '{"id": "' + customerId + '", "contactPersons": {"contactPerson": [ {"id": "' + contactPointId + '", "contactPoints": { "contactPoint": [{"id": "'+ y.toString() +'", "type": {"email": {"emailAddress": "'+ wipePattern +'" }} }] }} ]}}'
+    console.log(wipePattern);
     switchMethodAndBody('PUT', tempVar)
     fetch(editCustomerUrl, initObject)
     .then(function(response) {
         if (response.ok){
+          cpCounter += 1
+          console.log('Processing item ' + cpCounter + ' of ' + cpArray.length);
           append2DIV('wipeLog', y + ' has been wiped' + okSign)
+          if (cpCounter === cpArray.length) {
+            resolve('all items processed');
+            egLogout()
+          }
         } else {
           append2DIV('wipeLog', '<strong><font color=red>' + response.status + ':</strong></font> '+ response.statusText + errorSign)
+          if (cpCounter == cpArray.length) {resolve('resolved with errors')}
         }
-      })
-    .then(function(theCounter) {
-      if (cpCounter == cpArray.length) {
-        resolve('all items processed')
-      }
-    })
+        //resolve if all items have been processed
 
+      })
   })
 }
