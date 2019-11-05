@@ -16,7 +16,7 @@ function clearResults(){
 
 function SearchEmailAddress(){
   let customerEmail = document.getElementById("emailform").value;
-
+  clearResults()
   if (emailIsValid(customerEmail) == true) {
     cpArray = []
     let firstTrigger = egLogin()
