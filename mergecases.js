@@ -2,7 +2,7 @@ console.clear();
 const apiCaseCall = '/system/ws/v12/interaction/case/';
 let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 var srcCaseActivityIDs = []
-
+var arrayCounter = 0
 
 /*make sure the entered case ID is a valid one*/
 function validateCaseID(n){
@@ -30,11 +30,11 @@ function storeFirstCase(){
 
 	}
 
-function isIbound(t){
-	if (t == 'reply') {return false;} else {return true}
+function isInbound(t){
+	if (t == 'outbound') {return false;} else {return true}
 }
 
-function isDraft(w){ if (w == 'reply') {return 'Draft'} else {return w}}
+function isDraft(w){ if (w == 'outbound') {return 'Draft'} else {return w}}
 
 function validActivityStatus(z){
 if (z == 'awaiting_assignment' || z == 'assigned') {
@@ -131,26 +131,20 @@ function mergeCases(){
 			const mainCustomer = data.activity[0].customer.id
 			const mainContactPoint = data.activity[0].customer.contactPersons.contactPerson[0].contactPoints.contactPoint[0].id
 			for (i of data.activity){
-
-				//but ONLY with activities with a valid status
-				if (validActivityStatus(i.status.value) == true && isIbound(i.type.subtype.value) == true ) {
-
+			//but ONLY with activities with a valid status
+				if (validActivityStatus(i.status.value) == true && isInbound(i.mode.value) == true ) {
 					// for those that qualify:
-					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '</I> and <I>' + i.type.subtype.value + '</I>'  + okSign);
+					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '-' + i.type.subtype.value + '</I>'  + okSign);
 					window.srcCaseActivityIDs.push(i.id);
 					//also, check if customer if valid (change if not)
-
-    // THIS THIS THIS must execute synchronously!!!!!
-		/// GO FOR IT!!
-						//.then(function(whatever){ // out of place, doesn't work
+    	// THIS THIS THIS must execute synchronously!!!!!
+			/// GO FOR IT!!
 						if (i.customer.id != mainCustomer) {
 								changeActivityCustomer(i.id, mainContactPoint)
-								console.log(i.id + ' customer is ' + i.customer.id + ' should be ' + mainCustomer);
+								console.log('Customer for activity' + i.id + ' is ' + i.customer.id + ', should be ' + mainCustomer);
 							}
-						//}) // the previous .then
-
 					} else {
-					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> ' + '</I> and <I>' + isDraft(i.type.subtype.value) + '</I>' + errorSign);
+					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '-' + isDraft(i.mode.value) + '</I>' + errorSign);
 				}}
 				//exit if no valid activities left
 				if (window.srcCaseActivityIDs.toString() == '') {
@@ -184,6 +178,7 @@ function moveActivities() {
 		})}
 
 function changeActivityCustomer(activityID, customerID){
+
 	//do NOT return a new promise for this one
 	switchMethodAndBody('PUT', '{"activity": [{"id":"' + activityID + '","customer": {"contactPersons": {"contactPerson": [{"contactPoints": {"contactPoint":[{"id": "' + customerID +  '"}]}}]}}}]}')
 	var tempURL = baseUrl + '/system/ws/v12/interaction/activity/changecustomer'
@@ -217,7 +212,7 @@ function changeCaseCustomer() {
 				resolve('customer changed');
 				}})
 				}
-				resolve('no changes in customer association')
+				//resolve('no changes in customer association')
 			}
 		)}
 
