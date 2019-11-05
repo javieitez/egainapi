@@ -73,7 +73,7 @@ function buildTableAndLogout(y) {
 			;})
 			.then(() => egLogout())
 			.catch(function(err){
-			 	console.log("Something went wrong!", err);
+			 	writeDIV('actionsLog', 'Something went wrong! <br><I>' + err + '.</I> <br>(Is this a valid Case ID?)');
 				egLogout()
 			})
 	}
@@ -150,7 +150,7 @@ function mergeCases(){
 				if (window.srcCaseActivityIDs.toString() == '') {
 					append2DIV('actionsLog', 'Nothing can be moved from the source to the destination case');
 					reject('no valid activity IDs');
-
+					egLogout();
 				} else {
 					append2DIV('actionsLog', capitalizeFirstLetter(PluralizeActivity(window.srcCaseActivityIDs.length)) + window.srcCaseActivityIDs.toString() + ' will be moved');
 					resolve('activity IDs changed: ' + window.srcCaseActivityIDs.toString())
