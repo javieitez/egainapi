@@ -30,6 +30,12 @@ function storeFirstCase(){
 
 	}
 
+function isIbound(t){
+	if (t == 'inbound') {return true;} else {return false}
+}
+
+
+
 function validActivityStatus(z){
 if (z == 'awaiting_assignment' || z == 'assigned') {
   return true;
@@ -44,7 +50,8 @@ function buildTableAndLogout(y) {
 		.then(function(response){
 				return response.json();})
 		.then(function(data){
-	  	window.bufferCase = data.case[0];
+				//console.log(data);
+			window.bufferCase = data.case[0];
 			// prevent unassigned case from crashing the function
 			let caseOwner = '';
 					if (typeof window.bufferCase.owner.user === 'undefined') {
@@ -118,16 +125,17 @@ function mergeCases(){
 		.then(function(response){
 			return response.json();})
 			.then(function(data){
+				console.log(data);
 			//restart the array, then populate it with the activities
 			window.srcCaseActivityIDs =[]
 			const mainCustomer = data.activity[0].customer.id
 			const mainContactPoint = data.activity[0].customer.contactPersons.contactPerson[0].contactPoints.contactPoint[0].id
 			for (i of data.activity){
 				//but ONLY with activities with a valid status
-				if (validActivityStatus(i.status.value) == true) {
+				if (validActivityStatus(i.status.value) == true && isIbound(i.mode.value) == true ) {
 
 					// for those that qualify:
-					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '</I>' + okSign);
+					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '</I> and <I>' + i.mode.value + '</I>'  + okSign);
 					window.srcCaseActivityIDs.push(i.id);
 					//also, check if customer if valid (change if not)
 
@@ -141,7 +149,7 @@ function mergeCases(){
 						//}) // the previous .then
 
 					} else {
-					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> ' + errorSign);
+					append2DIV('actionsLog', i.id + ' is <I>' + i.status.value + '</I> ' + '</I> and <I>' + i.mode.value + '</I>' + errorSign);
 				}}
 				//exit if no valid activities left
 				if (window.srcCaseActivityIDs.toString() == '') {
