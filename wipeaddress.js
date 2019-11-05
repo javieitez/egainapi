@@ -18,6 +18,7 @@ function SearchEmailAddress(){
   let customerEmail = document.getElementById("emailform").value;
 
   if (emailIsValid(customerEmail) == true) {
+    cpArray = []
     let firstTrigger = egLogin()
     firstTrigger
     .then(() => fetchRemoteSearch(customerEmail))
@@ -85,9 +86,7 @@ function fetchRemoteSearch(string) {
 
 //just return singular or plural depending on amount
 function PluralizePoint(n){
-	if (n == 1) {return 'point '}
-	else {return 'points '}
-}
+	if (n == 1) {return 'point '} else {return 'points '}}
 
 // create the checkbox for later selection
 function createCheckBox(boxId){
@@ -143,14 +142,21 @@ function fetchEditCustomer(y){
           append2DIV('wipeLog', y + ' has been wiped' + okSign)
           if (cpCounter === cpArray.length) {
             resolve('all items processed');
-            egLogout()
+            hideAndLogout();
           }
         } else {
           append2DIV('wipeLog', '<strong><font color=red>' + response.status + ':</strong></font> '+ response.statusText + errorSign)
-          if (cpCounter == cpArray.length) {resolve('resolved with errors')}
+          if (cpCounter == cpArray.length) {
+            resolve('resolved with errors');
+            hideAndLogout();
+            }
         }
-        //resolve if all items have been processed
-
       })
   })
+}
+
+function hideAndLogout(){
+  //resolve(message);
+  egLogout();
+  writeDIV('wipeButton', '')
 }
