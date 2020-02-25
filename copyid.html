@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Copy Activity ID App</title>
+ <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body onload="setText('myInput', ActivityID)">
+<script>
+	//extract the params from URL
+	function getQuery(name){
+		if(name=(new RegExp('[?&;]'+encodeURIComponent(name)+'=([^&;]*)')).exec(location.search))
+			return decodeURIComponent(name[1]);
+		}
+
+	/* replacing the content of a DIV */
+	function writeDIV(element, message) {
+		document.getElementById(element).innerHTML = message + '<BR>'}
+
+function setText(element, message){
+	document.getElementById(element).value = message;}
+
+	//save param to constant
+	const ActivityID = getQuery("ActivityID");
+</script>
+
+<p id='textboard'>
+Activity ID: <input type="text" id="myInput">
+<button onclick="myFunction()">Copy to Clipboard &#128203;</button>
+</p>
+<p id="datextarea"> </p>
+
+<script>
+function myFunction() {
+  var copyText = document.getElementById("myInput");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999)
+  document.execCommand("copy");
+	writeDIV('datextarea', '<strong>' + copyText.value + '</strong> copied, use <i>Ctrl+V</i> to paste it elsewhere...' )
+}
+
+</script>
+</body>
+</html>
