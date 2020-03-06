@@ -102,7 +102,9 @@ function retryMergeCases () {
 
 		console.log('mergeRetries: ' + window.mergeRetries);
 		egLogout()
-		.then(() => mergeCases())
+		.then(() => window.setTimeout(mergeCases, 500)) /* Pause forced, this is
+		                                                  ugly as hell, but the
+																									   remote API needs it */
 }
 
 /*function for the mergeCases button*/
