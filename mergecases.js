@@ -3,6 +3,7 @@ const apiCaseCall = '/system/ws/v12/interaction/case/';
 let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 var srcCaseActivityIDs = []
 var arrayCounter = 0
+var mergeRetries = 0
 
 /*make sure the entered case ID is a valid one*/
 function validateCaseID(n){
@@ -96,11 +97,17 @@ function processDestCaseID() {
 	}
 }
 
+/* retry failed mergeCases if failed the first time*/
+function retryMergeCases () {
 
+		console.log('mergeRetries: ' + window.mergeRetries);
+		egLogout()
+		.then(() => mergeCases())
+}
 
 /*function for the mergeCases button*/
 function mergeCases(){
-	console.clear()
+	//console.clear()
 	writeDIV('mergeCaseButton', '')
 	if (window.srcCaseProperties.id === window.bufferCase.id) {
 		writeDIV('actionsLog', 'both cases are the same: ' + window.bufferCase.id);
@@ -137,8 +144,6 @@ function mergeCases(){
 					append2DIV('actionsLog',i.id + ' is <I>' + i.status.value + '-' + i.type.subtype.value + '</I>'  + okSign);
 					window.srcCaseActivityIDs.push(i.id);
 					//also, check if customer if valid (change if not)
-    	// THIS THIS THIS must execute synchronously!!!!!
-			/// GO FOR IT!!
 						if (i.customer.id != mainCustomer) {
 								changeActivityCustomer(i.id, mainContactPoint)
 								console.log('Customer for activity' + i.id + ' is ' + i.customer.id + ', should be ' + mainCustomer);
@@ -165,14 +170,26 @@ function moveActivities() {
 		fetch(moveactivityURL, initObject)
 		.then(function(response){
 			if (response.ok) {
-
 				append2DIV('actionsLog', '<strong>Done!</strong> ' + window.srcCaseActivityIDs.length + ' ' + PluralizeActivity(window.srcCaseActivityIDs.length) + "moved from source case "+
 				window.srcCaseProperties.id +" to destination case " + window.bufferCase.id + okSign );
 				resolve('ok')
 			} else {
+
+				// IF FAILED FOR SOME REASON, RETRY FROM SCRATCH
+
+				if (window.mergeRetries < 3) {
+
+					window.mergeRetries += 1
+
+					append2DIV('actionsLog', '<font color="red">Something went wrong, retrying...</font>' + errorSign )
+					retryMergeCases()
+
+				}	else {
 				append2DIV('actionsLog', '<font color="red"><strong>' + response.status + ' ' + response.statusText + '</strong></font> - something unexpected happened' + errorSign +
 																	'<BR><strong>Reloading this page might fix the problem</strong>')
-				egLogout()
+				console.log('Step 4 failed, logging out')
+				egLogout()}
+
 			}})
 			console.log('Step 4: moveActivities');
 		})}
