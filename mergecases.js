@@ -1,5 +1,5 @@
 console.clear();
-const apiCaseCall = '/system/ws/v12/interaction/case/';
+const apiCaseCall = '/ws/v12/interaction/case/';
 let getCaseUrl = baseUrl + apiCaseCall + srcCaseID;
 var srcCaseActivityIDs = []
 var arrayCounter = 0
@@ -167,7 +167,7 @@ function mergeCases(){
 // Move the activities to the destination case
 function moveActivities() {
 	return new Promise(function(resolve, reject) {
-		let moveactivityURL = baseUrl + '/system/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') + '/changecase?relateCase=yes'
+		let moveactivityURL = baseUrl + '/ws/v12/interaction/activity/' + window.srcCaseActivityIDs.toString().replace(/[,]/g, '%2C') + '/changecase?relateCase=yes'
 		switchMethodAndBody('PUT', '{"id": ' + window.bufferCase.id + ' }')
 		fetch(moveactivityURL, initObject)
 		.then(function(response){
@@ -200,7 +200,7 @@ function changeActivityCustomer(activityID, customerID){
 
 	//do NOT return a new promise for this one
 	switchMethodAndBody('PUT', '{"activity": [{"id":"' + activityID + '","customer": {"contactPersons": {"contactPerson": [{"contactPoints": {"contactPoint":[{"id": "' + customerID +  '"}]}}]}}}]}')
-	var tempURL = baseUrl + '/system/ws/v12/interaction/activity/changecustomer'
+	var tempURL = baseUrl + '/ws/v12/interaction/activity/changecustomer'
 	fetch(tempURL, initObject)
 	.then(function(response) {
 		if (!response.ok){

@@ -1,7 +1,7 @@
 console.clear();
 
-const editCustomerUrl = baseUrl + '/system/ws/v12/interaction/customer' //PUT
-const searchCustomerUrl = baseUrl + '/system/ws/v12/interaction/customer?email=' //GET
+const editCustomerUrl = baseUrl + '/ws/v12/interaction/customer' //PUT
+const searchCustomerUrl = baseUrl + '/ws/v12/interaction/customer?email=' //GET
 var cpArray = []
 
 function emailIsValid(string){
