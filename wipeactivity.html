@@ -15,8 +15,14 @@
 
 <script>
 const wipeActivityURL = '/ws/v19/interaction/activity/mask'
+var activityID = getQuery('activityID')
 
-writeDIV('infopane', 'Activity XXXXX will be completely wiped')
+//check for a valid input and confirm
+if (isNaN(activityID) || activityID == '') {
+	writeDIV('infopane', 'Please provide a valid activity ID')
+} else {
+	writeDIV('infopane', 'Activity ' + activityID + ' will be completely wiped')}
+
 </script>
 
 </body>
