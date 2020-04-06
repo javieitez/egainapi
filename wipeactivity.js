@@ -35,7 +35,7 @@ function fetchAPIforData(n){
 		activityID = data.activity[0].id
 		subject = data.activity[0].subject
 		creation = data.activity[0].created.date
-		lastModified = data.activity[0].lastModified.date
+		lastMod = data.activity[0].lastModified.date
 		tableContent = build4RTableContent( caseID, activityID, subject, creation )
 		outputTable = build4RTableHeader('Case','Activity', 'Subject', 'created on', tableContent)
 		msg = '<p>' + outputTable + '</p>'
@@ -44,15 +44,26 @@ function fetchAPIforData(n){
 			if (data.activity[0].mode.value == 'inbound' && data.activity[0].type.value == 'email' ){
 				append2DIV('infopane', 'Activity ' + activityID + ' will be wiped. '
 				+ warningSign + ' <STRONG> This action cannot be undone </STRONG>' + warningSign )
-				writeDIV('workpane', '<button onclick="wipeactivity(activityID, lastModified)">Wipe!!</button>')
+				writeDIV('workpane', '<button onclick="wipeactivity(activityID, lastMod)">Wipe!!</button>')
 			}else{
 				writeDIV('workpane', 'Not a valid activity. Only inbound emails are wipeable.')
 			}
 		resolve('ok');
 })})}
 
-function wipeactivity(n, date){
-	var tempVar = '{"activity":[{"id": "' + n + '" ,"lastModified":{"date": "' + date + '"}}]}'
+//function splitted for readability, this one calls the login routine
+function wipeactivity(n, d){
+	let actionTrigger = egLogin()
+  actionTrigger
+    .then(() => proceed2Wipe(n, d))
+    .then(() => egLogout())
+}
+//this one actually wipes the data
+function proceed2Wipe(n, d){
+	var tempVar = '{"activity":[{"id": "' + n + '" ,"lastModified":{"date": "' + d + '"}}]}'
+
+	console.log(tempVar.toString());
+
 	switchMethodAndBody('PUT', tempVar)
 	fetch(wipeActivityURL, initObject)
 		.then(function(response) {
@@ -61,5 +72,5 @@ function wipeactivity(n, date){
 			} else {
 				writeDIV('workpane', 'Something went wrong ' + errorSign)
 			}
-
+		//resolve('ok');
 })}
