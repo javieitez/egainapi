@@ -31,10 +31,11 @@ function fetchAPIforData(n){
   }})
 	.then(function(data) {
 		console.log(data);
-		caseID = data.activity[0].case.id
+		caseID = data.activity[0].case.id // put the required JSON values into vars
 		activityID = data.activity[0].id
 		subject = data.activity[0].subject
 		creation = data.activity[0].created.date
+		lastModified = data.activity[0].lastModified.date
 		tableContent = build4RTableContent( caseID, activityID, subject, creation )
 		outputTable = build4RTableHeader('Case','Activity', 'Subject', 'created on', tableContent)
 		msg = '<p>' + outputTable + '</p>'
@@ -43,14 +44,22 @@ function fetchAPIforData(n){
 			if (data.activity[0].mode.value == 'inbound' && data.activity[0].type.value == 'email' ){
 				append2DIV('infopane', 'Activity ' + activityID + ' will be wiped. '
 				+ warningSign + ' <STRONG> This action cannot be undone </STRONG>' + warningSign )
-				writeDIV('workpane', '<button onclick="wipeactivity(activityID)">Wipe!!</button>')
+				writeDIV('workpane', '<button onclick="wipeactivity(activityID, lastModified)">Wipe!!</button>')
 			}else{
 				writeDIV('workpane', 'Not a valid activity. Only inbound emails are wipeable.')
 			}
 		resolve('ok');
 })})}
 
-function wipeactivity(n){
-	console.log(wipeActivityURL);
+function wipeactivity(n, date){
+	var tempVar = '{"activity":[{"id": "' + n + '" ,"lastModified":{"date": "' + date + '"}}]}'
+	switchMethodAndBody('PUT', tempVar)
+	fetch(wipeActivityURL, initObject)
+		.then(function(response) {
+			if (response.ok){
+				writeDIV('workpane', 'Activity ' + n + ' has been successfully wiped ' + okSign)
+			} else {
+				writeDIV('workpane', 'Something went wrong ' + errorSign)
+			}
 
-}
+})}
