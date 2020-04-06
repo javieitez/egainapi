@@ -15,7 +15,9 @@ function getActivityData(id){
   let actionTrigger = egLogin()
   actionTrigger
     .then(() => fetchAPIforData(id))
-    .then(() => append2DIV('infopane', 'activity ID: ' + id))
+//    .then(() => append2DIV('infopane', 'activity ID: ' + id))
+
+
     .then(() => egLogout())
 
 
@@ -28,18 +30,27 @@ function fetchAPIforData(n){
     .then(function(response) {
 
       if (response.status == 200){
-        console.log(response)
 
-        tableContent = build4RTableContent('a','b','c','d' )
-        outputTable = build4RTableHeader('Case','Activity', 'Subject', 'From', tableContent)
-
-        msg = 'item found in customer DB' + okSign + '<p>' + outputTable + '</p>'
-        append2DIV('infopane',  msg)
-        resolve('ok');
-        return response.json();
-
+				msg = 'Activity found in customer DB' + okSign
+				append2DIV('infopane',  msg)
+				return response.json();
   } else {
     append2DIV('infopane', '<STRONG>' + response.status + ': </STRONG>item not found' + errorSign)
-    egLogout()
+    resolve('error');
   }
-})})}
+})
+.then(function(data) {
+	console.log(data);
+	caseID = data.activity[0].case.id
+	activityID = data.activity[0].id
+	subject = data.activity[0].subject
+	creation = data.activity[0].created.date
+	tableContent = build4RTableContent( caseID, activityID, subject, creation )
+	outputTable = build4RTableHeader('Case','Activity', 'Subject', 'created on', tableContent)
+
+	msg = '<p>' + outputTable + '</p>'
+	append2DIV('infopane',  msg)
+
+	resolve('ok');
+})
+})}
