@@ -1,4 +1,4 @@
-const wipeActivityURL = baseUrl + '/ws/v19/interaction/activity/mask' // PUT
+const maskActivityURL = baseUrl + '/ws/v19/interaction/activity/mask' // PUT
 
 //check for a valid input and confirm
 function validateInput(w){
@@ -42,17 +42,17 @@ function fetchAPIforData(n){
 		append2DIV('infopane',  msg)
 		// Only show the wipe button if the activity is an inbound email
 			if (data.activity[0].mode.value == 'inbound' && data.activity[0].type.value == 'email' ){
-				append2DIV('infopane', 'Activity ' + activityID + ' will be wiped. '
+				append2DIV('infopane', 'Activity ' + activityID + ' will be masked. '
 				+ warningSign + ' <STRONG> This action cannot be undone </STRONG>' + warningSign )
-				writeDIV('workpane', '<button onclick="wipeactivity(activityID, lastMod)">Wipe!!</button>')
+				writeDIV('workpane', '<button onclick="maskActivity(activityID, lastMod)">Mask!!</button>')
 			}else{
-				writeDIV('workpane', 'Not a valid activity. Only inbound emails are wipeable.')
+				writeDIV('workpane', 'Not a valid activity. Only inbound emails are maskeable.')
 			}
 		resolve('ok');
 })})}
 
 //function splitted for readability, this one calls the login routine
-function wipeactivity(n, d){
+function maskActivity(n, d){
 	let actionTrigger = egLogin()
   actionTrigger
     .then(() => proceed2Wipe(n, d))
@@ -65,7 +65,7 @@ function proceed2Wipe(n, d){
 	console.log(tempVar.toString());
 
 	switchMethodAndBody('PUT', tempVar)
-	fetch(wipeActivityURL, initObject)
+	fetch(maskActivityURL, initObject)
 		.then(function(response) {
 			if (response.ok){
 				writeDIV('workpane', 'Activity ' + n + ' has been successfully wiped ' + okSign)
