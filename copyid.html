@@ -27,7 +27,7 @@ function setText(element, message){
 	document.getElementById(element).value = message;}
 
 	//save param to constant
-	const ActivityID =  getQuery("Prefix")+ getQuery("ActivityID");
+	var ActivityID = getQuery("ActivityID");
 </script>
 
 <p id='textboard'>
@@ -38,6 +38,8 @@ Activity ID: <input type="text" id="myInput">
 
 <script>
 function myFunction() {
+  ActivityID =  getQuery("Prefix")+ getQuery("ActivityID");
+  setText('myInput', ActivityID)
   var copyText = document.getElementById("myInput");
   copyText.select();
   copyText.setSelectionRange(0, 99999)
