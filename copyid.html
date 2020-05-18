@@ -8,6 +8,9 @@
 
 </head>
 
+<!-- Simple webApp that concatenates two parameters supplied in the URL  and copies them to the clipboard on a button click -->
+<!-- Useful for robots -->
+
 <body onload="setText('myInput', ActivityID)">
 <script>
 	//extract the params from URL
@@ -24,7 +27,7 @@ function setText(element, message){
 	document.getElementById(element).value = message;}
 
 	//save param to constant
-	const ActivityID = getQuery("ActivityID");
+	const ActivityID =  getQuery("Prefix")+ getQuery("ActivityID");
 </script>
 
 <p id='textboard'>
