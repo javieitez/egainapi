@@ -127,7 +127,7 @@ function mergeCases(){
 	/* get the valid activity IDs of source case*/
 	function getSourceActivityIDs () {
 		return new Promise(function(resolve, reject) {
-		let listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href;
+		let listActivitiesURL = baseUrl + window.srcCaseProperties.activities.link.href.replace('/system', '');
 		console.log('Step 3: get Source Activity IDs')
 		switchMethodAndBody('GET', null)
 		fetch(listActivitiesURL, initObject)
