@@ -7,7 +7,7 @@ var mergeRetries = 0
 
 /*make sure the entered case ID is a valid one*/
 function validateCaseID(n){
-	if (isNaN(n) || n < 1111111 || n > 9999999) {
+	if (isNaN(n) || n < 1000000 || n > 9999999) {
 	return false;
 }	else {
 	return true;	}}
