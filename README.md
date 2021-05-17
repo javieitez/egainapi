@@ -1,8 +1,8 @@
 # eGain API toolset
 
 * uses promises for fetching the API calls
-* mergeCases - BETA - moves all open activities from source Case to destination Case
-* licenses - BETA - Retrieves license usage, can be used for Nagios Monitoring of license Usage
+* mergeCases - moves all open activities from source Case to destination Case
+* licenses - Retrieves license usage, can be used for Nagios Monitoring of license Usage
 * wipeAddress - BETA - search and wipe customer email addresses 
 * maskActivity - BETA - masks credit card and other sensitive patterns 
 
